@@ -1,4 +1,4 @@
-"""Implements functionality unique to the Lake Shore Model 372 AC bridge and temperature controller."""
+"""Implements functionality unique to the Lake Shore Model 370 AC bridge and temperature controller."""
 from enum import Enum, IntEnum
 
 from .temperature_controllers import TemperatureController, CurveTemperatureCoefficient, InterfaceMode, \
