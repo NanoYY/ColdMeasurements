@@ -1,4 +1,4 @@
-Most of the drivers come from
+Some of the drivers come from
 https://qcodes.github.io/Qcodes/index.html
 
 
