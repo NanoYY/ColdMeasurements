@@ -31,6 +31,7 @@ class ANAPICO(v.BaseVisa):
         command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))
         self.write_str(command)
 
+
     def idn(self):
         try:
             print("Connection exist:", self.query_str('*IDN?'))

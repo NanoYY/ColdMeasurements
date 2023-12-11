@@ -12,7 +12,7 @@ class DigPS():
                  GPIB num (float) or full device address (string)
          """
     def __int__(self):
-        self.address_dll =  r"C:\Users\Demag\PycharmProjects\ColdMeasurements\nanodrivers\nanodrivers\visa_drivers\dAtt_dll\VNX_dps64.dll"
+        self.address_dll =  r"C:\Users\Demag\PycharmProjects\ColdMeasurements\nanodrivers\nanodrivers\non_visa_drivers\dAtt_dll\VNX_dps64.dll"
     def phase_shifter(self, freq1, angle1):
         this_dir = os.path.abspath("")  # <-- Path to file here
         # ATTENTION!

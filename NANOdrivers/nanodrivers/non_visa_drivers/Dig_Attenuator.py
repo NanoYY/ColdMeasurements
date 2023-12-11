@@ -19,7 +19,7 @@ class DigAtt(object):
                  raw_atten:
                     Attenuation in dB
              """
-        address_dll = r"C:\Users\Demag\PycharmProjects\ColdMeasurements\nanodrivers\nanodrivers\visa_drivers\dAttenuator_dll\VNX_atten64.dll"
+        address_dll = r"C:\Users\Demag\PycharmProjects\ColdMeasurements\nanodrivers\nanodrivers\non_visa_drivers\dAttenuator_dll\VNX_atten64.dll"
         this_dir = os.path.abspath("")  # <-- Path to file her
         vnx = cdll.LoadLibrary(os.path.join(this_dir, address_dll))
         vnx.fnLDA_SetTestMode(False)

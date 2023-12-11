@@ -10,7 +10,12 @@
 """
 
 anapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'
-vna_address = 'GPIB0::20::INSTR'
-dc_source_address = 'GPIB0::3::INSTR'
 
+# vna_address = 'GPIB0::20::INSTR'
+vna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'
 
+dc_source_address = 'GPIB0::26::INSTR'
+
+loking_adress = 'GPIB0::30::INSTR'
+
+din_SA_adress = 'GPIB0::10::INSTR'

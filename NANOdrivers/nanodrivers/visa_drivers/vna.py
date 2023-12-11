@@ -1,4 +1,5 @@
 from numpy import *
+import numpy as np
 import nanodrivers.visa_drivers.visa_dev as v
 import time
 import nanodrivers.visa_drivers.global_settings as gs
@@ -34,6 +35,11 @@ class VNA(v.BaseVisa):
         self.write_str('INIT1:CONT OFF')  # single sweep mode
         self.write_str("CALC1:FORM MLOG")  # set data format to
 
+    def idn(self):
+        try:
+            print("Connection exist:", self.query_str('*IDN?'))
+        except:
+            self.__error_message()
     def get_data(self):
         """
         Readout in CW mode. After initialisation of the measurements a pause need to be set.
@@ -48,16 +54,16 @@ class VNA(v.BaseVisa):
         self.off()
 
         if self.form == 0:
-            print('WARNING: CHECK ANGLE (rad or deg)!')
+            # print('WARNING: CHECK ANGLE (rad or deg)!')
             return magtodb(abs(s)), angle(s)
         elif self.form == 1:
-            print('WARNING: CHECK ANGLE (rad or deg)!')
+            # print('WARNING: CHECK ANGLE (rad or deg)!')
             return abs(s), angle(s)
         elif self.form == 2:
-            print('WARNING: CHECK ANGLE (rad or deg)!')
+            # print('WARNING: CHECK ANGLE (rad or deg)!')
             return magtodb(abs(s)), angle(s)
         elif self.form == 3:
-            print('WARNING: CHECK ANGLE (rad or deg)!')
+            # print('WARNING: CHECK ANGLE (rad or deg)!')
             return abs(s), angle(s)
         elif self.form == 4:
             return data[0::2], data[1::2]
@@ -80,6 +86,7 @@ class VNA(v.BaseVisa):
         """
         Set single frequency point for CW mode in Hz
         """
+        self.write_str(':SENS1:SWE:TYPE CW')   # change to CW mode
         if freq < 100:
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             freq = freq*1e9
