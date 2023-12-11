@@ -19,3 +19,8 @@ class DC(v.BaseVisa):
     def set_volt(self, volt):
         self.write_str('VOLT:OFFS {}'.format(str(volt)))
 
+    def idn(self):
+        try:
+            print("Connection exist:", self.query_str('*IDN?'))
+        except:
+            self.__error_message()
