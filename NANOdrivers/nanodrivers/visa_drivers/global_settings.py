@@ -16,10 +16,12 @@ vna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'
 
 dc_source_address = 'GPIB0::26::INSTR'
 
-loking_adress = 'GPIB0::30::INSTR'
+loking_address = 'GPIB0::30::INSTR'
 
-din_SA_adress = 'GPIB0::10::INSTR'
+din_SA_address = 'GPIB0::10::INSTR'
+
 
 awg_address = 'GPIB0::13::INSTR'
 
 sa_address = 'GPIB0::7::INSTR'
+

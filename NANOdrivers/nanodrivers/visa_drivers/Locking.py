@@ -6,7 +6,7 @@ from ctypes import *
 import nanodrivers.visa_drivers.visa_dev as v
 import nanodrivers.visa_drivers.global_settings as gs
 
-global_loking_address = gs.loking_adress
+global_loking_address = gs.loking_address
 class LOCKING(v.BaseVisa):
     """Class for Stanford_Research_Systems, SR844, Lock-In Amplifier
 

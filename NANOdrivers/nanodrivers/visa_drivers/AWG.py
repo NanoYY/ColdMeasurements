@@ -10,14 +10,14 @@ global_awg_address = gs.awg_address
 
 
 class AWG(v.BaseVisa):
-    '''
+    """
         Class for Agilent Technologies, 33510B, Arbitrary Waveform Generator
 
         Args:
             device_num:
                 GPIB num (float) or full device address (string)
 
-    '''
+    """
 
     def __int__(self, device_num=global_awg_address):
         super().__int__(device_num)

@@ -11,7 +11,7 @@ class Anri(v.BaseVisa):
          device_num:
              GPIB num (float) or full device address (string)
      """
-    def __init__(self, device_num=global_anapico_address):
+    def __init__(self, device_num=global_sa_address):
         super().__init__(device_num)  # initialise device with the init of parent class VisaDevice
         self.write_str(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
 
@@ -26,13 +26,14 @@ class Anri(v.BaseVisa):
 
     def set_band_Hz(self, band):
         self.write_str('BAND {}HZ'.format(str(band)))
+
     def set_nop(self, nop):
-        '''
+        ''' Sets number of points
         
         Args:
             nop: number of points. max 10001
 
-        Returns:
+        Returns: None
 
         '''''
         self.write_str('SWEep:POINts {}'.format(str(nop)))

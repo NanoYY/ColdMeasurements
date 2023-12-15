@@ -1,17 +1,27 @@
-# Driver for devices in NANO lab Aalto
+# Scientist-friendly driver for microwave low-temperature equipment
 
-Drivers are written for python code for VISA protocol. 
-Some of the drivers come from
-https://qcodes.github.io/Qcodes/index.html
+<h1 align="center"> Currently available:
+
+<h1 align="center"> <a href="https://en.wikipedia.org/wiki/Virtual_instrument_software_architecture" target="_blank">Visa drivers</a> 
 
 
-LakeShore 370/372
-https://lake-shore-python-driver.readthedocs.io/en/latest/index.html
+| No. | Device                       | Model                             | Status |
+|-----|------------------------------|-----------------------------------|--------|
+| 1.  | Vector Network Analyzer      | Rohde-Schwarz, ZNB20-2Port        | 50%    |
+| 2.  | Signal Analyzer              | ANRITSU MS2830A                   | 20%    |
+| 3.  | Dynamic Signal Analyzer      | Stanford_Research_Systems, SR785  | 20%    |
+| 4.  | Lock-In Amplifier            | Stanford_Research_Systems, SR844  | 20%    |
+| 5.  | Arbitrary Waveform Generator | Agilent Technologies, 33510B      | 20%    |
+| 6.  | Signal Generator             | AnaPico, APMS20G                  | 20%    |
+| 7.  | DC Source                    | HEWLETT-PACKARD,33120A            | 90%    |
 
-Currently available:
 
-1. LakeShore 370
-2. AnaPico AG,APMS20G
-2. HEWLETT-PACKARD,33120A
-3. Rohde-Schwarz,ZNB20-2Port
-4. ANRITSU,MS2830A
+<h1 align="center">Non Visa drivers
+
+
+| No | Device                 | Model         | Status |
+|----|------------------------|---------------|--------|
+| 1. | Temperature controller | LakeShore 370 | 10%    |
+| 1. | Digital attenuator     | Vaunix        | 100%   |
+| 1. | Digital phase shifter  | Vaunix        | 90%    |
+
