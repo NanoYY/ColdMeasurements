@@ -1,5 +1,4 @@
 import time
-
 import numpy as np
 from numpy import *
 import os
@@ -8,7 +7,7 @@ from ctypes import *
 import nanodrivers.visa_drivers.visa_dev as v
 import nanodrivers.visa_drivers.global_settings as gs
 
-global_dSA_address = gs.din_SA_adress
+global_dSA_address = gs.din_SA_address
 
 class Din_SA(v.BaseVisa):
     """ Class for Stanford_Research_Systems, SR785, Dynamic Signal Analyzer
@@ -19,7 +18,7 @@ class Din_SA(v.BaseVisa):
         device_num:
             GPIB num (float) or full device address (string)
         termination_char:
-            Should be "new line"
+            Should be "new line" for some commands
 
     """
 
