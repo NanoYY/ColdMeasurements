@@ -71,21 +71,29 @@ class LOCKING(v.BaseVisa):
         self.query_float('SENS {}'.format(str(s)))
         return sensitivity_options[s]
 
+    def set_auto_sens(self):
+        '''
+
+        Returns: Not really reliable. Sets too sensitive rate. Not recommended to use
+
+        '''
+        return self.write_str('AGAN')
+
     def get_phase(self):
         return self.query_float('PHAS ?')
 
     def get_ref_impedance(self):
-        imp = int(self.query_float('REFZ ?'))
+        imp = self.query_int('REFZ ?')
         if imp == 0: return '50 Ohm'
         if imp == 1: return '1 MOhm '
 
     def get_input_impedance(self):
-        imp = int(self.query_float('INPZ ?'))
+        imp = self.query_int('INPZ ?')
         if imp == 0: return '50 Ohm'
         if imp == 1: return '1 MOhm '
 
     def get_time_const(self):
-        tconst = int(self.query_float('OFLT ?'))
+        tconst = self.query_int('OFLT ?')
         if tconst == 0: return '100 mus'
         if tconst == 17: return '30 ks'
         else: return tconst
@@ -95,3 +103,6 @@ class LOCKING(v.BaseVisa):
 
     def get_Y_data(self):
         return self.query_float('OUTP?2')
+
+    def set_phase(self, pha):
+        return self.write_str('PHAS {}'.format(pha))

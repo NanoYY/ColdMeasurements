@@ -28,6 +28,15 @@ class ANAPICO(v.BaseVisa):
         self.write_str(command)
 
     def set_freq(self, channel, frequency):
+        ''' Function to set frequency
+
+        Args:
+            channel: output channel
+            frequency: output frequency in Hz
+
+        Returns: None
+
+        '''
         command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))
         self.write_str(command)
 

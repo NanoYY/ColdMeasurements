@@ -4,18 +4,17 @@ import numpy as np
 
 class BaseVisa:
 
-    def __init__(self, device_address, termination_char=None):
+    def __init__(self, device_address):
         rm = pyvisa.ResourceManager()
         if isinstance(device_address, int):
             device_num = int(device_address)
             device = rm.open_resource(f"GPIB0::{device_num}::INSTR", write_termination=termination_char)
         elif isinstance(device_address, str):
             addr = str(device_address)
-            device = rm.open_resource(addr, write_termination=termination_char)
+            device = rm.open_resource(addr)
         else:
             raise ValueError('Invalid device initialization, please provide GPIB num or device address.')
         self.device = device
-        self.termination_char = termination_char
 
     def __error_message(self):
         print('Check that device is connected, visible in NI MAX and is not used by another software.')
