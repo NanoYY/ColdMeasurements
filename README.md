@@ -8,6 +8,8 @@ This code could be optimized. This code could be made more literate.
 But are these complications really so necessary when you need to test a sample
 before it would expire?
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NanoYY/ColdMeasurements/HEAD)
+
 ****
 
 
