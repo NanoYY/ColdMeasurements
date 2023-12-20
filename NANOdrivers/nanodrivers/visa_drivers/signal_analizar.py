@@ -13,30 +13,30 @@ class Anri(v.BaseVisa):
      """
     def __init__(self, device_num=global_sa_address):
         super().__init__(device_num)  # initialise device with the init of parent class VisaDevice
-        self.write_str(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
+        self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
 
     def set_cent_freq(self, freq):
-        self.write_str('FREQ:CENT {}'.format(str(freq)))
+        self.write('FREQ:CENT {}'.format(str(freq)))
 
     def set_span(self, span):
-        self.write_str('FREQ:SPAN {}'.format(str(span)))
+        self.write('FREQ:SPAN {}'.format(str(span)))
 
     def set_band_kHz(self, band):
-        self.write_str('BAND {}KHZ'.format(str(band)))
+        self.write('BAND {}KHZ'.format(str(band)))
 
     def set_band_Hz(self, band):
-        self.write_str('BAND {}HZ'.format(str(band)))
+        self.write('BAND {}HZ'.format(str(band)))
 
     def set_nop(self, nop):
-        ''' Sets number of points
-        
+        """ Sets number of points
+
         Args:
             nop: number of points. max 10001
 
         Returns: None
 
-        '''''
-        self.write_str('SWEep:POINts {}'.format(str(nop)))
+        ''"""
+        self.write('SWEep:POINts {}'.format(str(nop)))
 
     def get_nop(self):
         return self.query_int('SWEep:POINts?')
@@ -45,13 +45,13 @@ class Anri(v.BaseVisa):
         return self.query_float('SWEep:TIME?')
 
     def sweep_mode_cont(self):
-        self.write_str('INIT:MODE:CONT')
+        self.write('INIT:MODE:CONT')
 
     def sweep_mode_sing(self):
-        self.write_str('INIT:MODE:SING')
+        self.write('INIT:MODE:SING')
 
     def get_data(self):
-        self.write_str('INIT:IMM')
+        self.write('INIT:IMM')
         time.sleep(20 + self.get_sweep_time())
         raw_data = self.query_str('TRAC? TRAC1')
         data = np.array(raw_data.split(','), dtype=float)

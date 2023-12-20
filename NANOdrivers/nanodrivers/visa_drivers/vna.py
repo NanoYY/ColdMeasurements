@@ -32,21 +32,16 @@ class VNA(v.BaseVisa):
     def __init__(self, device_num=global_vna_address, form=0):
         super().__init__(device_num)
         self.form = form
-        self.write_str('INIT1:CONT OFF')  # single sweep mode
-        self.write_str("CALC1:FORM MLOG")  # set data format to
+        self.write('INIT1:CONT OFF')  # single sweep mode
+        self.write("CALC1:FORM MLOG")  # set data format to
 
-    def idn(self):
-        try:
-            print("Connection exist:", self.query_str('*IDN?'))
-        except:
-            self.__error_message()
     def get_data(self):
         """
         Readout in CW mode. After initialisation of the measurements a pause need to be set.
         The pause = sweep time + 0.2 s. Otherwise readout request will come before measurement ends
         """
         self.on()
-        self.write_str("INIT1:IMM")
+        self.write("INIT1:IMM")
         time.sleep(0.2 + self.ask_sweep_time())
         data_str = self.query_str("CALC1:DATA? SDAT")
         data = np.array(data_str.rstrip().split(",")).astype("float64")
@@ -71,10 +66,10 @@ class VNA(v.BaseVisa):
             return s
 
     def on(self):
-        self.write_str('OUTP ON')
+        self.write('OUTP ON')
 
     def off(self):
-        self.write_str('OUTP OFF')
+        self.write('OUTP OFF')
 
     def ask_nop(self):
         return self.query_int('SENS1:SWE:POIN?')
@@ -86,11 +81,11 @@ class VNA(v.BaseVisa):
         """
         Set single frequency point for CW mode in Hz
         """
-        self.write_str(':SENS1:SWE:TYPE CW')   # change to CW mode
+        self.write(':SENS1:SWE:TYPE CW')   # change to CW mode
         if freq < 100:
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             freq = freq*1e9
-        self.write_str('SENS1:FREQ:CW {}'.format(str(freq)))
+        self.write('SENS1:FREQ:CW {}'.format(str(freq)))
 
     def set_freq_start_stop(self, start_fr, stop_fr):
         """
@@ -104,8 +99,8 @@ class VNA(v.BaseVisa):
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             stop_fr = stop_fr*1e9
 
-        self.write_str('SENS1:FREQ: STAR {}'.format(str(start_fr)))
-        self.write_str('SENS1:FREQ: STOP {}'.format(str(stop_fr)))
+        self.write('SENS1:FREQ: STAR {}'.format(str(start_fr)))
+        self.write('SENS1:FREQ: STOP {}'.format(str(stop_fr)))
 
     def set_freq_cent_span(self, start_cent, span):
         """
@@ -119,14 +114,14 @@ class VNA(v.BaseVisa):
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             span = span * 1e9
 
-        self.write_str('SENS1:FREQ: CENT {}'.format(str(start_cent)))
-        self.write_str('SENS1:FREQ: SPAN {}'.format(str(span)))
+        self.write('SENS1:FREQ: CENT {}'.format(str(start_cent)))
+        self.write('SENS1:FREQ: SPAN {}'.format(str(span)))
 
     def set_power(self, meas_power):
         if meas_power >= 10:
             print('Too high power! Power=10 will be set')
             meas_power = 10
-        self.write_str('SOUR1:POW {}'.format(str(meas_power)))
+        self.write('SOUR1:POW {}'.format(str(meas_power)))
 
     def set_band(self, bandwidth):
         """
@@ -135,10 +130,10 @@ class VNA(v.BaseVisa):
         {1, 1.5, 2, 3, 5, 7}·pow(10,n) Hz for (n ≥ 0).
         Values exceeding the maximum bandwidth are rounded down.
         """
-        self.write_str(':SENS1:BAND {}'.format(str(bandwidth)))
+        self.write(':SENS1:BAND {}'.format(str(bandwidth)))
 
     def set_nop(self, nop):
-        self.write_str('SENS1:SWE:POIN {}'.format(str(nop)))
+        self.write('SENS1:SWE:POIN {}'.format(str(nop)))
 
     def cw_meas(self, freq=6e9, meas_power=-10, band=10):
         """

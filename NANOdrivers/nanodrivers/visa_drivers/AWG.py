@@ -22,9 +22,5 @@ class AWG(v.BaseVisa):
     def __int__(self, device_num=global_awg_address):
         super().__int__(device_num)
 
-    def idn(self):
-        try:
-            print("Connection exist:", self.query_str('*IDN?\n'))
-        except:
-            self.__error_message()
+
 

@@ -19,11 +19,10 @@ class LOCKING(v.BaseVisa):
     def __int__(self, device_num=global_loking_address):
         super().__int__(device_num)
 
-    def idn(self):
-        try:
-            print("Connection exist:", self.query_str('*IDN?'))
-        except:
-            self.__error_message()
+
+    def clear(self):
+        return self.write('*CLS')
+
 
     def get_sensitivity(self):
         return self.query_float('SENS ?')
@@ -77,7 +76,7 @@ class LOCKING(v.BaseVisa):
         Returns: Not really reliable. Sets too sensitive rate. Not recommended to use
 
         '''
-        return self.write_str('AGAN')
+        return self.write('AGAN')
 
     def get_phase(self):
         return self.query_float('PHAS ?')
@@ -105,4 +104,4 @@ class LOCKING(v.BaseVisa):
         return self.query_float('OUTP?2')
 
     def set_phase(self, pha):
-        return self.write_str('PHAS {}'.format(pha))
+        return self.write('PHAS {}'.format(pha))
