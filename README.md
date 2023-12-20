@@ -88,34 +88,29 @@ https://lake-shore-python-driver.readthedocs.io/en/latest/index.html
 </details>
 
 ****
-<style scoped>
-table {
-  font-size: 13px;
-}
-</style>
 
 <h1 align="center"> Currently available:
 
 <h1 align="center"> <a href="https://en.wikipedia.org/wiki/Virtual_instrument_software_architecture" target="_blank">Visa drivers</a> 
 
 
-| No. | Device                       | Model                             | Status |
-|-----|------------------------------|-----------------------------------|--------|
-| 1.  | Vector Network Analyzer      | Rohde-Schwarz, ZNB20-2Port        | 50%    |
-| 2.  | Signal Analyzer              | ANRITSU MS2830A                   | 20%    |
-| 3.  | Dynamic Signal Analyzer      | Stanford_Research_Systems, SR785  | 20%    |
-| 4.  | Lock-In Amplifier            | Stanford_Research_Systems, SR844  | 20%    |
-| 5.  | Arbitrary Waveform Generator | Agilent Technologies, 33510B      | 20%    |
-| 6.  | Signal Generator             | AnaPico, APMS20G                  | 20%    |
-| 7.  | DC Source                    | HEWLETT-PACKARD,33120A            | 90%    |
+| <sub> No. | <sub> Device                       | <sub> Model                             | <sub> Status |
+|-----------|------------------------------------|-----------------------------------------|--------------|
+|<sub>  1.  | <sub> Vector Network Analyzer      | <sub> Rohde-Schwarz, ZNB20-2Port        | <sub> 50%    |
+| <sub> 2.  | <sub> Signal Analyzer              | <sub> ANRITSU MS2830A                   | <sub> 20%    |
+| <sub> 3.  | <sub> Dynamic Signal Analyzer      | <sub> Stanford_Research_Systems, SR785  | <sub> 20%    |
+| <sub> 4.  | <sub> Lock-In Amplifier            | <sub> Stanford_Research_Systems, SR844  | <sub> 20%    |
+| <sub> 5.  | <sub> Arbitrary Waveform Generator | <sub> Agilent Technologies, 33510B      | <sub> 20%    |
+| <sub> 6.  | <sub> Signal Generator             | <sub> AnaPico, APMS20G                  | <sub> 20%    |
+| <sub> 7.  | <sub> DC Source                    | <sub> HEWLETT-PACKARD,33120A            | <sub> 90%    |
 
 
 <h1 align="center">Non Visa drivers
 
 
-| No | Device                 | Model         | Status |
-|----|------------------------|---------------|--------|
-| 1. | Temperature controller | LakeShore 370 | 10%    |
-| 1. | Digital attenuator     | Vaunix        | 100%   |
-| 1. | Digital phase shifter  | Vaunix        | 90%    |
+| <sub> No | <sub> Device                 |<sub>  Model         | <sub> Status |
+|----------|------------------------------|---------------------|--------------|
+| <sub> 1. | <sub> Temperature controller | <sub> LakeShore 370 | <sub> 10%    |
+| <sub> 2. | <sub> Digital attenuator     | <sub> Vaunix        | <sub> 100%   |
+| <sub> 3. | <sub> Digital phase shifter  | <sub> Vaunix        | <sub> 90%    |
 
