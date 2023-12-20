@@ -4,6 +4,11 @@
 
 <h1 align="center"> <a href="https://en.wikipedia.org/wiki/Virtual_instrument_software_architecture" target="_blank">Visa drivers</a> 
 
+<style scoped>
+table {
+  font-size: 14px;
+}
+</style>
 
 | No. | Device                       | Model                             | Status |
 |-----|------------------------------|-----------------------------------|--------|

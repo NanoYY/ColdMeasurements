@@ -56,7 +56,12 @@ It a general command supported by all Visa-based devices.
 In the very same manner all drivers are organized in this repository. 
 
 
-![plot](./sch.png)
+![sch](./Sch.png)
+
+All Visa devices have the following list of commands: 
+https://rfmw.em.keysight.com/spdhelpfiles/truevolt/webhelp/US/Content/__I_SCPI/IEEE-488_Common_Commands.htm
+
+
 
 </details>
 
@@ -83,7 +88,11 @@ https://lake-shore-python-driver.readthedocs.io/en/latest/index.html
 </details>
 
 ****
-
+<style scoped>
+table {
+  font-size: 13px;
+}
+</style>
 
 <h1 align="center"> Currently available:
 

@@ -25,27 +25,22 @@ class Din_SA(v.BaseVisa):
     def __int__(self, device_num=global_dSA_address):
         super().__int__(device_num)
 
-    def idn(self):
-        try:
-            print("Connection exist:", self.query_str('*IDN?\n'))
-        except:
-            self.__error_message()
 
     def start(self):
-        self.write_str('STRT')
+        self.write('STRT')
 
     def GPIB_output(self):
-        self.write_str('OUTX 0')
+        self.write('OUTX 0')
 
     def get_freq(self, lines = 100, d = 0):
-        self.write_str('*CLS')
+        self.write('*CLS')
         max_freq = float(self.query_str('FSPN? {}'.format(int(d))))
         min_freq = float(self.query_str('FSTR? {}'.format(int(d))))
         fr = np.linspace(min_freq, max_freq, lines)
         return fr
 
     def read_d(self, avg = 1, d = 0):
-        self.write_str('*CLS')
+        self.write('*CLS')
 
         def read_c():
             self.start()
