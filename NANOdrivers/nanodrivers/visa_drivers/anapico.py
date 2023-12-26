@@ -16,6 +16,14 @@ class ANAPICO(v.BaseVisa):
         self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
 
     def on(self, channel):
+        """
+        Function to turn on channel
+        Args:
+            channel: channel number [1..4]
+
+        Returns: None
+
+        """
         command = r'OUTP{} ON'.format(str(channel))
         self.write(command)
 
