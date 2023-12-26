@@ -43,7 +43,7 @@ class VNA(v.BaseVisa):
         self.on()
         self.write("INIT1:IMM")
         time.sleep(0.2 + self.ask_sweep_time())
-        data_str = self.query_str("CALC1:DATA? SDAT")
+        data_str = self.query("CALC1:DATA? SDAT")
         data = np.array(data_str.rstrip().split(",")).astype("float64")
         s = data[0::2] + 1j * data[1::2]
         self.off()
