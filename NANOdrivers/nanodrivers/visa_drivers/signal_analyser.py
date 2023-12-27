@@ -5,12 +5,14 @@ import nanodrivers.visa_drivers.global_settings as gs
 
 global_sa_address = gs.sa_address
 
+
 class Anri(v.BaseVisa):
     """Class for ANRITSU MS2830A signal analyzer
      Args:
          device_num:
              GPIB num (float) or full device address (string)
      """
+
     def __init__(self, device_num=global_sa_address):
         super().__init__(device_num)  # initialise device with the init of parent class VisaDevice
         self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
