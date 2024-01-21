@@ -14,6 +14,14 @@ def magtodb(mag):
 
 
 def dbtomag(db):
+    """
+    Function
+    Args:
+        db:
+
+    Returns:
+
+    """
     return np.pow(10, db / 20)  # applied to power measurement
 
 
