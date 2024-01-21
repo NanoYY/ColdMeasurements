@@ -7,6 +7,8 @@
             supports LAN and GPIB
         dc_source_address:
             supports GPIB
+
+        anapico_address = 'TCPIP0::169.254.5.91::18::SOCKET'"
 """
 
 anapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'

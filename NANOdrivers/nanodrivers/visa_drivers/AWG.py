@@ -22,5 +22,16 @@ class AWG(v.BaseVisa):
     def __int__(self, device_num=global_awg_address):
         super().__int__(device_num)
 
+    def set_freq(self, channel, frequency):
+        """
+        Function to set frequency
+        Args:
+            channel: output channel
+            frequency: output frequency in Hz
 
+        Returns: None
 
+        """
+
+        command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))
+        self.write(command)
