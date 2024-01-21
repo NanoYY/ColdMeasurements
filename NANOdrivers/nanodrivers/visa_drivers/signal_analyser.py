@@ -6,8 +6,8 @@ import nanodrivers.visa_drivers.global_settings as gs
 global_sa_address = gs.sa_address
 
 
-class Anri(v.BaseVisa):
-    """Class for ANRITSU MS2830A signal analyzer
+class ANRITSU(v.BaseVisa):
+    """Class for ANRITSU MS2830A signal analyser
      Args:
          device_num:
              GPIB num (float) or full device address (string)
@@ -30,20 +30,30 @@ class Anri(v.BaseVisa):
         self.write('BAND {}HZ'.format(str(band)))
 
     def set_nop(self, nop):
-        """ Sets number of points
-
+        """
+        Function to sets number of points
         Args:
             nop: number of points. max 10001
 
         Returns: None
 
-        ''"""
+        """
         self.write('SWEep:POINts {}'.format(str(nop)))
 
     def get_nop(self):
+        """
+        Function to get number of points to be measured
+        Returns: number of points
+
+        """
         return self.query_int('SWEep:POINts?')
 
     def get_sweep_time(self):
+        """
+        Function to get estimated by device sweep time. When used recommend to add some time in addition to this value.
+        Returns: sweep time
+
+        """
         return self.query_float('SWEep:TIME?')
 
     def sweep_mode_cont(self):
@@ -53,6 +63,12 @@ class Anri(v.BaseVisa):
         self.write('INIT:MODE:SING')
 
     def get_data(self):
+        """
+        Function to read data from signal analyser. Writes command to start sweep, waits for sweep_time+20s and
+        reads data. Then converts to float array.
+        Returns: data, float
+
+        """
         self.write('INIT:IMM')
         time.sleep(20 + self.get_sweep_time())
         raw_data = self.query_str('TRAC? TRAC1')
