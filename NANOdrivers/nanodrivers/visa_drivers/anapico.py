@@ -17,9 +17,9 @@ class ANAPICO(v.BaseVisa):
 
     def on(self, channel):
         """
-        Function to turn on power on selected channel
+        Function to turn on channel
         Args:
-            channel: output channel
+            channel: channel number [1..4]
 
         Returns: None
 
@@ -28,39 +28,22 @@ class ANAPICO(v.BaseVisa):
         self.write(command)
 
     def off(self, channel):
-        """
-        Function to turn on power off selected channel
-        Args:
-            channel: output channel
-
-        Returns: None
-
-        """
         command = r'OUTP{} OFF'.format(str(channel))
         self.write(command)
 
-    def set_power(self, channel, output_power):
-        """
-        Function to set power
-        Args:
-            channel: output channel
-            output_power: output power in db
-
-        Returns: None
-
-        """
-        command = r'SOUR{}:POW {}'.format(str(channel), str(output_power))
+    def set_power(self, channel, power):
+        command = r'SOUR{}:POW {}'.format(str(channel), str(power))
         self.write(command)
 
     def set_freq(self, channel, frequency):
-        """
-        Function to set frequency
+        ''' Function to set frequency
+
         Args:
             channel: output channel
             frequency: output frequency in Hz
 
         Returns: None
 
-        """
+        '''
         command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))
         self.write(command)

@@ -25,5 +25,5 @@ din_SA_address = 'GPIB0::10::INSTR'
 
 awg_address = 'GPIB0::13::INSTR'
 
-sa_address = 'GPIB0::7::INSTR'
+sa_address = 'GPIB0::18::INSTR'
 
