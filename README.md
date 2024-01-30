@@ -96,7 +96,7 @@ https://lake-shore-python-driver.readthedocs.io/en/latest/index.html
 
 | <sub> No. | <sub> Device                       | <sub> Model                             | <sub> Status |
 |-----------|------------------------------------|-----------------------------------------|--------------|
-|<sub>  1.  | <sub> Vector Network Analyzer      | <sub> Rohde-Schwarz, ZNB20-2Port        | <sub> 50%    |
+|<sub>  1.  | <sub> Vector Network Analyzer      | <sub> Rohde-Schwarz, ZNB20-2Port        | <sub> 80%    |
 | <sub> 2.  | <sub> Signal Analyzer              | <sub> ANRITSU MS2830A                   | <sub> 20%    |
 | <sub> 3.  | <sub> Dynamic Signal Analyzer      | <sub> Stanford_Research_Systems, SR785  | <sub> 20%    |
 | <sub> 4.  | <sub> Lock-In Amplifier            | <sub> Stanford_Research_Systems, SR844  | <sub> 20%    |

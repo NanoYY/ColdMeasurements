@@ -46,8 +46,13 @@ class LOCKIN(v.BaseVisa):
         self.get_sensitivity()
 
         self.ref_impedance = None
-        
+        self.get_ref_impedance()
 
+        self.input_impedance = None
+        self.get_input_impedance()
+
+        self.time_const = None
+        self.get_time_const()
 
         # Meas params
         self.phase = None
@@ -69,7 +74,6 @@ class LOCKIN(v.BaseVisa):
             if type(value) == pyvisa.resources.tcpip.TCPIPInstrument:
                 list_of_att[attribute] = str(value)
         return list_of_att
-
 
     def clear(self):
         return self.write('*CLS')
@@ -97,6 +101,40 @@ class LOCKIN(v.BaseVisa):
         """
         self.sensitivity = self.query_float('SENS ?')
         return self.sensitivity
+
+    def get_phase(self):
+        """
+        Function to get current phase value
+        Returns: phase in deg
+
+        """
+        self.phase = self.query_float('PHAS ?')
+        return self.phase
+
+    def get_ref_impedance(self):
+        self.ref_impedance = self.query_int('REFZ ?')
+        if self.ref_impedance == 0: return '50 Ohm'
+        if self.ref_impedance == 1: return '1 MOhm '
+
+    def get_input_impedance(self):
+        self.input_impedance = self.query_int('INPZ ?')
+        if self.input_impedance == 0: return '50 Ohm'
+        if self.input_impedance == 1: return '1 MOhm '
+
+    def get_time_const(self):
+        self.time_const = self.query_int('OFLT ?')
+        if self.time_const == 0: return '100 mus'
+        if self.time_const == 17: return '30 ks'
+        else: return self.time_const
+
+    def get_X_data(self):
+        return self.query_float('OUTP?1')
+
+    def get_Y_data(self):
+        return self.query_float('OUTP?2')
+
+    def set_phase(self, pha):
+        return self.write('PHAS {}'.format(pha))
 
     def set_sensitivity(self, s):
         """ Function to set sensitivity of Loking input
@@ -149,37 +187,3 @@ class LOCKIN(v.BaseVisa):
 
         """
         return self.write('AGAN')
-
-    def get_phase(self):
-        """
-        Function to get current phase value
-        Returns: phase in deg
-
-        """
-        self.phase = self.query_float('PHAS ?')
-        return self.phase
-
-    def get_ref_impedance(self):
-        imp = self.query_int('REFZ ?')
-        if imp == 0: return '50 Ohm'
-        if imp == 1: return '1 MOhm '
-
-    def get_input_impedance(self):
-        imp = self.query_int('INPZ ?')
-        if imp == 0: return '50 Ohm'
-        if imp == 1: return '1 MOhm '
-
-    def get_time_const(self):
-        tconst = self.query_int('OFLT ?')
-        if tconst == 0: return '100 mus'
-        if tconst == 17: return '30 ks'
-        else: return tconst
-
-    def get_X_data(self):
-        return self.query_float('OUTP?1')
-
-    def get_Y_data(self):
-        return self.query_float('OUTP?2')
-
-    def set_phase(self, pha):
-        return self.write('PHAS {}'.format(pha))
