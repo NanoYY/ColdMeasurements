@@ -2,10 +2,12 @@ from __future__ import (absolute_import, division, print_function)
 
 from numpy import *
 import numpy as np
-import nanodrivers.visa_drivers.visa_dev as v
-import time
-import nanodrivers.visa_drivers.global_settings as gs
 import pyvisa
+import time
+
+import nanodrivers.visa_drivers.visa_dev as v
+import nanodrivers.visa_drivers.global_settings as gs
+
 
 global_vna_address = gs.vna_address
 
@@ -46,7 +48,8 @@ def get_class_attributes(print_it=False):
 
 
 class VNA(v.BaseVisa):
-    """Class for Vector Network Analyzer Rohde-Schwarz, ZNB20-2Port operation.
+    """
+    Class for Vector Network Analyzer Rohde-Schwarz, ZNB20-2Port operation.
      Args:
          device_num:
              GPIB num (float) or full device address (string)
@@ -330,6 +333,11 @@ class VNA(v.BaseVisa):
         return self.type
 
     def set_on(self):
+        """
+        Function turns ON output power
+        Returns: None
+
+        """
         self.write('OUTP ON')
 
     def set_off(self):
