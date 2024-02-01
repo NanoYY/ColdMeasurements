@@ -124,7 +124,8 @@ class VNA(v.BaseVisa):
             list_of_att[attribute] = value
             if print_it:
                 print(attribute, '=', value)
-            if type(value) == pyvisa.resources.tcpip.TCPIPInstrument:
+            if type(value) == pyvisa.resources.tcpip.TCPIPInstrument or \
+                    type(value) == pyvisa.resources.gpib.GPIBInstrument:
                 list_of_att[attribute] = str(value)
         return list_of_att
 
@@ -328,7 +329,7 @@ class VNA(v.BaseVisa):
         return self.type
 
     def set_cw(self):
-        self.write('SENS1:SWE:TYPE CW')
+        self.write('SENS1:SWE:TYPE POIN')
         self.type = self.get_sweep_type()
         return self.type
 
