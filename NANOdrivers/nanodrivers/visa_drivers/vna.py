@@ -30,8 +30,9 @@ def dbtomag(db):
 
 def get_class_attributes(print_it=False):
     """
-    Function returns all class attributes
-
+    Function returns VNA class attributes.
+    Args:
+        print_it: If True, prints class_attributes. Default: False
     Returns: list of all variables globally defined within class
 
     """
@@ -115,7 +116,8 @@ class VNA(v.BaseVisa):
         """
         Function returns all pre-defined class attributes
         (all variables used in the code with the latest value read)
-
+        Args:
+            print_it: If True, prints class_attributes. Default: False
         Returns: list of all variables defined in class __init__
 
         """
@@ -324,14 +326,22 @@ class VNA(v.BaseVisa):
         self.write('SENSe1:AVERage:COUNt {}'.format(str(self.avgs)))
 
     def set_lin(self):
+        """
+        Sets measurement mode to Linear.
+        Returns: None
+
+        """
         self.write('SENS1:SWE:TYPE LIN')
         self.type = self.get_sweep_type()
-        return self.type
 
     def set_cw(self):
+        """
+        Sets measurement mode to CW.
+        Returns: None
+
+        """
         self.write('SENS1:SWE:TYPE POIN')
         self.type = self.get_sweep_type()
-        return self.type
 
     def set_on(self):
         """
@@ -342,6 +352,11 @@ class VNA(v.BaseVisa):
         self.write('OUTP ON')
 
     def set_off(self):
+        """
+        Function turns OFF output power
+        Returns: None
+
+        """
         self.write('OUTP OFF')
 
     def set_cw_freq(self, freq):

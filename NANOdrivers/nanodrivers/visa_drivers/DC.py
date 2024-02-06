@@ -1,9 +1,7 @@
 from __future__ import (absolute_import, division, print_function)
 
 from numpy import *
-import numpy as np
 import pyvisa
-import time
 
 import nanodrivers.visa_drivers.visa_dev as v
 import nanodrivers.visa_drivers.global_settings as gs
@@ -68,18 +66,50 @@ class DC(v.BaseVisa):
         return list_of_att
 
     def get_impedance(self):
+        """
+        Function to get output impedance (output load).
+        Options are: 50|INFinity|MINimum|MAXimum
+        Default: INF
+
+        Returns: Output load, string
+
+        """
         self.impedance = self.query('OUTPut:LOAD?')
         return self.impedance
 
     def get_shape(self):
+        """
+        Function to get shape of output signal (for example, DC or sinusoidal modulation).
+        Options are: SINusoid|SQUare|TRIangle|RAMP|NOISe|USER|DC
+        Default: DC
+
+        Returns: Shape, string
+
+        """
         self.shape = self.query('FUNCtion:SHAP?')
         return self.shape
 
     def set_impedance(self, imp='INF'):
+        """
+        Function to set output impedance (output load).
+        Options are: 50|INFinity|MINimum|MAXimum
+        Default: INF
+
+        Returns: None
+
+        """
         self.impedance = imp
         self.write('OUTPut:LOAD {}'.format(str(self.imp)))
 
     def set_shape(self, shape_mode='DC'):
+        """
+        Function to set shape of output signal (for example, DC or sinusoidal modulation).
+        Options are: SINusoid|SQUare|TRIangle|RAMP|NOISe|USER|DC
+        Default: DC
+
+        Returns: None
+
+        """
         self.shape = shape_mode
         self.write('FUNCtion:SHAP {}'.format(str(self.shape)))
 
