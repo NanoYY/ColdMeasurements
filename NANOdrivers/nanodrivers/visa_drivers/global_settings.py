@@ -12,9 +12,11 @@
 """
 
 anapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'
+# anapico_address = 'TCPIP0::169.254.5.91::18::SOCKET'
 
 # vna_address = 'GPIB0::20::INSTR'
 vna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'
+# vna_address = 'TCPIP0::169.254.36.111::inst0::INSTR'
 
 dc_source_address = 'GPIB0::26::INSTR'
 

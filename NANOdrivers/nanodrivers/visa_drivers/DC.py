@@ -99,7 +99,7 @@ class DC(v.BaseVisa):
 
         """
         self.impedance = imp
-        self.write('OUTPut:LOAD {}'.format(str(self.imp)))
+        self.write('OUTPut:LOAD {}'.format(str(self.impedance)))
 
     def set_shape(self, shape_mode='DC'):
         """
