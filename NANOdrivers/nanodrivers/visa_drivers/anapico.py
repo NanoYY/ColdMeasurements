@@ -32,6 +32,7 @@ class ANAPICO(v.BaseVisa):
      Args:
          device_num:
              GPIB num (float) or full device address (string)
+
      """
     def __init__(self, device_num=global_anapico_address):
         super().__init__(device_num)  # initialise device with the init of parent class VisaDevice
