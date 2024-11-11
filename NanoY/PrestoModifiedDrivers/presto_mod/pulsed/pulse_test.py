@@ -21,7 +21,7 @@ from presto.hardware import AdcFSample, AdcMode, DacFSample, DacMode
 from presto import pulsed
 from presto.utils import format_precision, rotate_opt, sin2
 
-from _base import Base, project
+from ._base import Base, project
 
 DAC_CURRENT = 40_500  # uA
 CONVERTER_CONFIGURATION = {
