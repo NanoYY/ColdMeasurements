@@ -68,7 +68,8 @@ class T1(Base):
         self,
         LO_port: int,
         IF_port: int,
-        Readout_port: int,
+        Readout_port1: int,
+        Readout_port2: int,
 
         LO_freq: float,
         IF_freq: float,
@@ -76,7 +77,7 @@ class T1(Base):
         IF_amp: float,
         LO_duration: float,
         IF_duration: float,
-        Readout_duration: float,
+        readout_duration: float,
         delay: float,
 
         wait_delay: float,
@@ -95,7 +96,8 @@ class T1(Base):
     ) -> None:
         self.LO_port = LO_port
         self.IF_port = IF_port
-        self.Readout_port = Readout_port
+        self.Readout_port1 = Readout_port1
+        self.Readout_port2 = Readout_port2
 
         self.LO_freq = LO_freq
         self.IF_freq = IF_freq
@@ -103,7 +105,7 @@ class T1(Base):
         self.IF_amp = IF_amp
         self.LO_duration = LO_duration
         self.IF_duration = IF_duration
-        self.Readout_duration = Readout_duration
+        self.Readout_duration = readout_duration
         self.num_averages = num_averages
         self.drag = drag
 
@@ -148,14 +150,15 @@ class T1(Base):
         ) as pls:
             assert pls.hardware is not None
 
-            pls.hardware.set_adc_attenuation(self.Readout_port, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.Readout_port1, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.Readout_port2, 0.0)  # readout signal goes to here
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
             pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
             pls.hardware.set_inv_sinc(self.IF_port, 2)
             pls.hardware.configure_mixer(
                 freq=self.LO_freq,
-                in_ports=self.Readout_port,
+                in_ports=[self.Readout_port1,self.Readout_port2],
                 out_ports=self.LO_port,
                 sync=False,  # sync in next call
             )
@@ -227,7 +230,7 @@ class T1(Base):
             )
 
             # Setup sampling window
-            pls.set_store_ports(self.Readout_port)
+            pls.set_store_ports([self.Readout_port1, self.Readout_port2])
             pls.set_store_duration(self.Readout_duration)
 
             # ******************************
