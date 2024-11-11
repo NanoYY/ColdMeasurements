@@ -56,7 +56,7 @@ def gaussian(t, cent, sig, start, end):
     Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
     return Result
 
-def Gauss(nr_samples,edge,sig_left=2,sig_right=0.001):
+def Gauss(nr_samples,drag,edge=10,sig_left=2,sig_right=2):
     t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
     Left = gaussian(t, edge, sig_left, 0, edge)
     Middle = gate(t, edge+1, t[-edge])
@@ -105,7 +105,7 @@ class T1(Base):
         self.IF_amp = IF_amp
         self.LO_duration = LO_duration
         self.IF_duration = IF_duration
-        self.Readout_duration = readout_duration
+        self.readout_duration = readout_duration
         self.num_averages = num_averages
         self.drag = drag
 
@@ -123,12 +123,18 @@ class T1(Base):
 
         # Get the DAC sampling rate (for example)
         dac_sampling_rate = 1e9  # Placeholder value, replace with actual sampling rate
-        num_samples = int(round(self.IF_duration * dac_sampling_rate))
+        num_samples_LO = int(round(self.LO_duration * dac_sampling_rate))
+        num_samples_IF = int(round(self.IF_duration * dac_sampling_rate))
 
         if envelope_function is not None:
-            self.IF_envelope_function = envelope_function(num_samples, self.drag)
+            self.LO_envelope_function = envelope_function(num_samples_LO, self.drag)
         else:
-            self.IF_envelope_function = sin2(num_samples, self.drag)
+            self.LO_envelope_function = sin2(num_samples_LO, self.drag)
+
+        if envelope_function is not None:
+            self.IF_envelope_function = envelope_function(num_samples_IF, self.drag)
+        else:
+            self.IF_envelope_function = sin2(num_samples_IF, self.drag)
 
 
     # @staticmethod
@@ -206,14 +212,23 @@ class T1(Base):
             # use setup_long_drive to create a pulse with square envelope
             # setup_long_drive supports smooth rise and fall transitions for the pulse,
             # but we keep it simple here
-            LO_pulse = pls.setup_long_drive(
+
+            # LO_pulse = pls.setup_long_drive(
+            #     output_port=self.LO_port,
+            #     group=0,
+            #     duration=self.LO_duration,
+            #     amplitude=1.0,
+            #     amplitude_q=1.0,
+            #     rise_time=0e-9,
+            #     fall_time=0e-9,
+            # )
+
+            LO_pulse = pls.setup_template(
                 output_port=self.LO_port,
                 group=0,
-                duration=self.LO_duration,
-                amplitude=1.0,
-                amplitude_q=1.0,
-                rise_time=0e-9,
-                fall_time=0e-9,
+                template=self.LO_envelope_function,
+                template_q=self.LO_envelope_function if self.drag == 0.0 else None,
+                envelope=True,
             )
             IF_ns = int(round(self.IF_duration *
                                    pls.get_fs("dac")))  # number of samples in the control template
@@ -231,7 +246,7 @@ class T1(Base):
 
             # Setup sampling window
             pls.set_store_ports([self.Readout_port1, self.Readout_port2])
-            pls.set_store_duration(self.Readout_duration)
+            pls.set_store_duration(self.readout_duration)
 
             # ******************************
             # *** Program pulse sequence ***
