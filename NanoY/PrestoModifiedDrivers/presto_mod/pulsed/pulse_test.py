@@ -80,7 +80,7 @@ class T1(Base):
         delay: float,
 
         wait_delay: float,
-        IF_sample_delay: float,
+        LO_sample_delay: float,
         num_averages: int,
 
         envelope_function = None,  # function
@@ -203,7 +203,7 @@ class T1(Base):
             # use setup_long_drive to create a pulse with square envelope
             # setup_long_drive supports smooth rise and fall transitions for the pulse,
             # but we keep it simple here
-            readout_pulse = pls.setup_long_drive(
+            LO_pulse = pls.setup_long_drive(
                 output_port=self.LO_port,
                 group=0,
                 duration=self.LO_duration,
@@ -212,13 +212,13 @@ class T1(Base):
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
-            control_ns = int(round(self.IF_duration *
+            IF_ns = int(round(self.IF_duration *
                                    pls.get_fs("dac")))  # number of samples in the control template
 
-            # control_envelope = self.control_envelope_function(control_ns, drag=self.drag)
-            # print(control_envelope_function.type)
+            # IF_envelope = self.IF_envelope_function(IF_ns, drag=self.drag)
+            # print(IF_envelope_function.type)
 
-            control_pulse = pls.setup_template(
+            IF_pulse = pls.setup_template(
                 output_port=self.IF_port,
                 group=0,
                 template=self.IF_envelope_function,
