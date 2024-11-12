@@ -194,13 +194,6 @@ class T1(Base):
                 phases_q=0.0,
             )
             pls.setup_freq_lut(
-                input_ports=[self.readout_port1, self.readout_port2],
-                group=0,
-                frequencies=0.0,
-                phases=0.0,
-                phases_q=0.0,
-            )
-            pls.setup_freq_lut(
                 output_ports=self.IF_port,
                 group=0,
                 frequencies=0.0,
