@@ -73,6 +73,7 @@ class T1(Base):
 
         LO_freq: float,
         IF_freq: float,
+        readout_freq: float,
         LO_amp: float,
         IF_amp: float,
         LO_duration: float,
@@ -101,6 +102,7 @@ class T1(Base):
 
         self.LO_freq = LO_freq
         self.IF_freq = IF_freq
+        self.readout_freq = readout_freq
         self.LO_amp = LO_amp
         self.IF_amp = IF_amp
         self.LO_duration = LO_duration
@@ -164,8 +166,12 @@ class T1(Base):
             pls.hardware.set_inv_sinc(self.IF_port, 2)
             pls.hardware.configure_mixer(
                 freq=self.LO_freq,
-                in_ports=[self.Readout_port1,self.Readout_port2],
                 out_ports=self.LO_port,
+                sync=False,  # sync in next call
+            )
+            pls.hardware.configure_mixer(
+                freq=self.readout_freq,
+                in_ports=[self.Readout_port1, self.Readout_port2],
                 sync=False,  # sync in next call
             )
             pls.hardware.configure_mixer(
