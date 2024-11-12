@@ -97,8 +97,8 @@ class T1(Base):
     ) -> None:
         self.LO_port = LO_port
         self.IF_port = IF_port
-        self.Readout_port1 = Readout_port1
-        self.Readout_port2 = Readout_port2
+        self.readout_port1 = Readout_port1
+        self.readout_port2 = Readout_port2
 
         self.LO_freq = LO_freq
         self.IF_freq = IF_freq
@@ -158,8 +158,8 @@ class T1(Base):
         ) as pls:
             assert pls.hardware is not None
 
-            pls.hardware.set_adc_attenuation(self.Readout_port1, 0.0)  # readout signal goes to here
-            pls.hardware.set_adc_attenuation(self.Readout_port2, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.readout_port1, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.readout_port2, 0.0)  # readout signal goes to here
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
             pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
@@ -171,7 +171,7 @@ class T1(Base):
             )
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
-                in_ports=[self.Readout_port1, self.Readout_port2],
+                in_ports=[self.readout_port1, self.readout_port2],
                 sync=False,  # sync in next call
             )
             pls.hardware.configure_mixer(
@@ -188,6 +188,13 @@ class T1(Base):
             # we only need to use carrier 1
             pls.setup_freq_lut(
                 output_ports=self.LO_port,
+                group=0,
+                frequencies=0.0,
+                phases=0.0,
+                phases_q=0.0,
+            )
+            pls.setup_freq_lut(
+                input_ports=[self.readout_port1, self.readout_port2],
                 group=0,
                 frequencies=0.0,
                 phases=0.0,
@@ -251,7 +258,7 @@ class T1(Base):
             )
 
             # Setup sampling window
-            pls.set_store_ports([self.Readout_port1, self.Readout_port2])
+            pls.set_store_ports([self.readout_port1, self.readout_port2])
             pls.set_store_duration(self.readout_duration)
 
             # ******************************
