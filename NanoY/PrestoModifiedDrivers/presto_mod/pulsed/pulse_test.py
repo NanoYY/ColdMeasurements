@@ -56,7 +56,7 @@ def gaussian(t, cent, sig, start, end):
     Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
     return Result
 
-def Gauss(nr_samples,drag,edge=10,sig_left=2,sig_right=2):
+def Gauss(nr_samples,drag,edge=10,sig_left=5,sig_right=5):
     t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
     Left = gaussian(t, edge, sig_left, 0, edge)
     Middle = gate(t, edge+1, t[-edge])
@@ -254,7 +254,7 @@ class T1(Base):
 
             T = 0.0  # s, start at time zero ...
 
-            pls.store(T + self.LO_sample_delay)
+            pls.store(100e-9 + T + self.LO_sample_delay)
 
             pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
             pls.output_pulse(T, LO_pulse)
