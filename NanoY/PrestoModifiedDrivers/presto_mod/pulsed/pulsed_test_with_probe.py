@@ -76,21 +76,27 @@ class T1(Base):
         self,
         LO_port: int,
         IF_port: int,
+        PR_port: int,
         readout_port1: int,
         readout_port2: int,
 
         LO_freq: float,
         IF_freq: float,
+        PR_freq: float,
         readout_freq: float,
+
         LO_amp: float,
         IF_amp: float,
+        PR_amp: float,
+
         LO_duration: float,
         IF_duration: float,
+        PR_duration: float,
         readout_duration: float,
-        delay: float,
 
+        delay: float,
         wait_delay: float,
-        LO_sample_delay: float,
+        readout_delay: float,
         num_averages: int,
 
         envelope_function = None,  # function
@@ -105,28 +111,33 @@ class T1(Base):
     ) -> None:
         self.LO_port = LO_port
         self.IF_port = IF_port
+        self.PR_port = PR_port
         self.readout_port1 = readout_port1
         self.readout_port2 = readout_port2
 
         self.LO_freq = LO_freq
         self.IF_freq = IF_freq
+        self.PR_freq = PR_freq
         self.readout_freq = readout_freq
+
         self.LO_amp = LO_amp
         self.IF_amp = IF_amp
+        self.PR_amp = PR_amp
+
         self.LO_duration = LO_duration
         self.IF_duration = IF_duration
+        self.PR_duration = PR_duration
         self.readout_duration = readout_duration
-        self.num_averages = num_averages
-        self.drag = drag
 
         self.delay =  np.atleast_1d(delay).astype(np.float64)              # if a single float is passed,
         self.wait_delay = np.atleast_1d(wait_delay).astype(np.float64)     # it's converted into a single-element array
-        self.LO_sample_delay = np.atleast_1d(LO_sample_delay).astype(np.float64)
-
+        self.readout_delay = np.atleast_1d(readout_delay).astype(np.float64)
+        self.num_averages = num_averages
 
         self.t_arr = None  # replaced by run
         self.data = None  # replaced by run
 
+        self.drag = drag
         self.save_ = save_
         self.file_name = str(file_name)
         self.file_folder = str(file_folder)
@@ -135,6 +146,7 @@ class T1(Base):
         dac_sampling_rate = 1e9  # Placeholder value, replace with actual sampling rate
         num_samples_LO = int(round(self.LO_duration * dac_sampling_rate))
         num_samples_IF = int(round(self.IF_duration * dac_sampling_rate))
+        num_samples_PR = int(round(self.PR_duration * dac_sampling_rate))
 
         if envelope_function is not None:
             self.LO_envelope_function = envelope_function(num_samples_LO, self.drag)
@@ -145,6 +157,11 @@ class T1(Base):
             self.IF_envelope_function = envelope_function(num_samples_IF, self.drag)
         else:
             self.IF_envelope_function = sin2(num_samples_IF, self.drag)
+
+        if envelope_function is not None:
+            self.PR_envelope_function = envelope_function(num_samples_PR, self.drag)
+        else:
+            self.PR_envelope_function = sin2(num_samples_PR, self.drag)
 
 
     # @staticmethod
@@ -176,6 +193,7 @@ class T1(Base):
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
                 in_ports=[self.readout_port1, self.readout_port2],
+                out_ports=self.PR_port,
                 sync=True,  # sync in next call
             )
             pls.hardware.configure_mixer(
@@ -279,7 +297,7 @@ class T1(Base):
 
             T = 0.0  # s, start at time zero ...
 
-            pls.store(100e-9 + T + self.LO_sample_delay)
+            pls.store(T + self.LO_sample_delay)
 
             pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
             pls.output_pulse(T, LO_pulse)
