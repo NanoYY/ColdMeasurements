@@ -55,21 +55,21 @@ IDX_HIGH = 2_000
 #     t = np.linspace(0, 10, number_of_samples)
 #     return gate(t, start, stop) + gaussian(t, cent=start, sig=sig_feft) * (1 - np.heaviside(t - start, 1)) + gaussian(t, cent=stop, sig=sig_right) * (np.heaviside(t - stop, 1))
 
-def gate(t, start, stop):
-    return np.heaviside(t - start, 1) - np.heaviside(t - stop, 1)
-
-
-def gaussian(t, cent, sig, start, end):
-    Result = np.zeros(int(t[-1]))
-    Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
-    return Result
-
-def Gauss(nr_samples,drag,edge=10,sig_left=5,sig_right=5):
-    t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
-    Left = gaussian(t, edge, sig_left, 0, edge)
-    Middle = gate(t, edge+1, t[-edge])
-    Right = gaussian(t, int(t[-edge]), sig_right,int(t[-edge-1]),int(t[-1]))
-    return Left + Middle + Right
+# def gate(t, start, stop):
+#     return np.heaviside(t - start, 1) - np.heaviside(t - stop, 1)
+#
+#
+# def gaussian(t, cent, sig, start, end):
+#     Result = np.zeros(int(t[-1]))
+#     Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
+#     return Result
+#
+# def Gauss(nr_samples,drag,edge=50,sig_left=20,sig_right=20):
+#     t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
+#     Left = gaussian(t, edge, sig_left, 0, edge)
+#     Middle = gate(t, edge+1, t[-edge])
+#     Right = gaussian(t, int(t[-edge]), sig_right,int(t[-edge-1]),int(t[-1]))
+#     return Left + Middle + Right
 
 class T1(Base):
     def __init__(
@@ -97,6 +97,7 @@ class T1(Base):
         delay: float,
         wait_delay: float,
         readout_delay: float,
+        num_repeats: int,
         num_averages: int,
 
         envelope_function = None,  # function
@@ -132,6 +133,7 @@ class T1(Base):
         self.delay =  np.atleast_1d(delay).astype(np.float64)              # if a single float is passed,
         self.wait_delay = np.atleast_1d(wait_delay).astype(np.float64)     # it's converted into a single-element array
         self.readout_delay = np.atleast_1d(readout_delay).astype(np.float64)
+        self.num_repeats = num_repeats
         self.num_averages = num_averages
 
         self.t_arr = None  # replaced by run
@@ -187,24 +189,28 @@ class T1(Base):
             pls.hardware.set_adc_attenuation(self.readout_port2, 0.0)  # readout signal goes to here
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
+            pls.hardware.set_dac_current(self.PR_port, DAC_CURRENT)  # control of sample / pump port
             pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
             pls.hardware.set_inv_sinc(self.IF_port, 2)
-
+            pls.hardware.set_inv_sinc(self.PR_port, 2)
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
                 in_ports=[self.readout_port1, self.readout_port2],
+            )
+            pls.hardware.configure_mixer(
+                freq=self.PR_freq,
                 out_ports=self.PR_port,
-                sync=True,  # sync in next call
+                sync = True,
             )
             pls.hardware.configure_mixer(
                 freq=self.LO_freq,
                 out_ports=self.LO_port,
-                sync=False,  # sync in next call
+                sync=True,
             )
             pls.hardware.configure_mixer(
                 freq=self.IF_freq,
                 out_ports=self.IF_port,
-                sync=True,  # sync here
+                sync=True,
             )
 
             # ************************************
@@ -227,6 +233,13 @@ class T1(Base):
                 phases=0.0,
                 phases_q=0.0,
             )
+            pls.setup_freq_lut(
+                output_ports=self.PR_port,
+                group=0,
+                frequencies=0.0,
+                phases=0.0,
+                phases_q=0.0,
+            )
 
             # Setup lookup tables for amplitudes
             pls.setup_scale_lut(
@@ -234,11 +247,15 @@ class T1(Base):
                 group=0,
                 scales=self.LO_amp,
             )
-
             pls.setup_scale_lut(
                 output_ports=self.IF_port,
                 group=0,
                 scales=self.IF_amp,
+            )
+            pls.setup_scale_lut(
+                output_ports=self.PR_port,
+                group=0,
+                scales=self.PR_amp,
             )
 
             # Setup readout and control pulses
@@ -269,23 +286,33 @@ class T1(Base):
             # IF_envelope = self.IF_envelope_function(IF_ns, drag=self.drag)
             # print(IF_envelope_function.type)
 
-            IF_pulse = pls.setup_long_drive(
+            # IF_pulse = pls.setup_long_drive(
+            #     output_port=self.IF_port,
+            #     group=0,
+            #     duration=self.IF_duration,
+            #     amplitude=1.0,
+            #     amplitude_q=1.0,
+            #     rise_time=0e-9,
+            #     fall_time=0e-9,
+            # )
+
+            IF_pulse = pls.setup_template(
                 output_port=self.IF_port,
                 group=0,
-                duration=self.IF_duration,
+                template=self.IF_envelope_function,
+                template_q=self.IF_envelope_function if self.drag == 0.0 else None,
+                envelope=True,
+            )
+
+            PR_pulse = pls.setup_long_drive(
+                output_port=self.PR_port,
+                group=0,
+                duration=self.PR_duration,
                 amplitude=1.0,
                 amplitude_q=1.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
-
-            # IF_pulse = pls.setup_template(
-            #     output_port=self.IF_port,
-            #     group=0,
-            #     template=self.IF_envelope_function,
-            #     template_q=self.IF_envelope_function if self.drag == 0.0 else None,
-            #     envelope=True,
-            # )
 
             # Setup sampling window
             pls.set_store_ports([self.readout_port1, self.readout_port2])
@@ -297,7 +324,10 @@ class T1(Base):
 
             T = 0.0  # s, start at time zero ...
 
-            pls.store(T + self.LO_sample_delay)
+            pls.store(T + self.readout_delay)
+            pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
+            pls.output_pulse(T, PR_pulse)
+            T += self.delay
 
             pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
             pls.output_pulse(T, LO_pulse)
@@ -316,7 +346,7 @@ class T1(Base):
 
             pls.run(
                 period=T,
-                repeat_count=1,
+                repeat_count=self.num_repeats,
                 num_averages=self.num_averages,
                 print_time=False,
             )
