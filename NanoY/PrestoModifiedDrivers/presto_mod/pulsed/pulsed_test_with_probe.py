@@ -304,15 +304,23 @@ class T1(Base):
                 envelope=True,
             )
 
-            PR_pulse = pls.setup_long_drive(
+            PR_pulse = pls.setup_template(
                 output_port=self.PR_port,
                 group=0,
-                duration=self.PR_duration,
-                amplitude=1.0,
-                amplitude_q=1.0,
-                rise_time=0e-9,
-                fall_time=0e-9,
+                template=self.PR_envelope_function,
+                template_q=self.PR_envelope_function if self.drag == 0.0 else None,
+                envelope=True,
             )
+
+            # PR_pulse = pls.setup_long_drive(
+            #     output_port=self.PR_port,
+            #     group=0,
+            #     duration=self.PR_duration,
+            #     amplitude=1.0,
+            #     amplitude_q=1.0,
+            #     rise_time=0e-9,
+            #     fall_time=0e-9,
+            # )
 
             # Setup sampling window
             pls.set_store_ports([self.readout_port1, self.readout_port2])
@@ -322,6 +330,7 @@ class T1(Base):
             # *** Program pulse sequence ***
             # ******************************
 
+            print('New run started at', datetime.now(), end='\r')
             T = 0.0  # s, start at time zero ...
 
             pls.store(T + self.readout_delay)
