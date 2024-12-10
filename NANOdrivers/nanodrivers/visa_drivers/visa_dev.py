@@ -1,7 +1,7 @@
 import pyvisa
 import numpy as np
 
-
+pyvisa.ResourceManager.resource_info
 class BaseVisa:
 
     def __init__(self, device_address):
@@ -123,4 +123,3 @@ class BaseVisa:
             print("Connection exist:", self.query('*IDN?'))
         except:
             self.__error_message()
-

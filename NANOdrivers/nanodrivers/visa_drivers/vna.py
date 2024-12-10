@@ -2,9 +2,13 @@ from __future__ import (absolute_import, division, print_function)
 
 from numpy import *
 import numpy as np
-import nanodrivers.visa_drivers.visa_dev as v
+import pyvisa
 import time
+
+import nanodrivers.visa_drivers.visa_dev as v
 import nanodrivers.visa_drivers.global_settings as gs
+from datetime import datetime, timedelta
+
 
 global_vna_address = gs.vna_address
 
@@ -27,8 +31,9 @@ def dbtomag(db):
 
 def get_class_attributes(print_it=False):
     """
-    Function returns all class attributes
-
+    Function returns VNA class attributes.
+    Args:
+        print_it: If True, prints class_attributes. Default: False
     Returns: list of all variables globally defined within class
 
     """
@@ -45,7 +50,8 @@ def get_class_attributes(print_it=False):
 
 
 class VNA(v.BaseVisa):
-    """Class for Vector Network Analyzer Rohde-Schwarz, ZNB20-2Port operation.
+    """
+    Class for Vector Network Analyzer Rohde-Schwarz, ZNB20-2Port operation.
      Args:
          device_num:
              GPIB num (float) or full device address (string)
@@ -61,34 +67,58 @@ class VNA(v.BaseVisa):
      """
     def __init__(self, device_num=global_vna_address, form=0):
         super().__init__(device_num)
-        self.type = None
+
+        self.type = nan
         self.get_sweep_type()
+        self.ref_source = None
+        self.get_ref_source()
 
         self.form = form
         self.write('INIT1:CONT OFF')  # single sweep mode
         self.write("CALC1:FORM MLOG")  # set data format to
 
-        self.cent_freq = None
-        self.span = None
-        self.star_freq = None
-        self.stop_freq = None
-        self.cw_freq = None
+        self.cent_freq = nan
+        self.span = nan
+        self.star_freq = nan
+        self.stop_freq = nan
+        self.cw_freq = nan
+        self.freq = nan
 
-        self.status = None
+        if self.type == 'LIN':
+            self.get_cent_freq()
+            self.get_stop_freq()
+            self.get_start_freq()
+            self.get_span()
+            self.get_freq()
 
-        self.nop = None
+        self.elength = nan
+        self.get_elength()
+
+        self.status_output = nan
+        self.get_status()
+
+        self.nop = nan
         self.get_nop()
 
-        self.band = None
+        self.band = nan
         self.get_band()
 
-        self.power = None
+        self.power = nan
         self.get_power()
+        #
+        self.write('SENSe1:AVERage:STATe 0')  # sets averaging of output off
+        self.avg_status = nan
+        self.get_avg_status()
 
-    def get_instance_attributes(self, print_it=False):
+        self.avgs = nan
+        self.set_avgs(1) # sets averaging number to 1
+
+    def dump(self, print_it=False):
         """
         Function returns all pre-defined class attributes
-
+        (all variables used in the code with the latest value read)
+        Args:
+            print_it: If True, prints class_attributes. Default: False
         Returns: list of all variables defined in class __init__
 
         """
@@ -97,6 +127,9 @@ class VNA(v.BaseVisa):
             list_of_att[attribute] = value
             if print_it:
                 print(attribute, '=', value)
+            if type(value) == pyvisa.resources.tcpip.TCPIPInstrument or \
+                    type(value) == pyvisa.resources.gpib.GPIBInstrument:
+                list_of_att[attribute] = str(value)
         return list_of_att
 
     def sys_help(self):
@@ -110,22 +143,67 @@ class VNA(v.BaseVisa):
         return print(self.query('SYSTem:HELP:HEAD?'))
 
     def get_sweep_type(self):
+        """
+        Function to get sweep type
+        Returns: LINear | LOGarithmic | POWer | CW | POINt | SEGMent
+
+        """
         self.type = self.query('SENS1:SWE:TYPE?')[:-1]
         return self.type
 
-    def get_data(self):
+    def get_ref_source(self):
+        self.ref_source = self.query('SENSe1:ROSCillator:SOURce?')[:-1]
+        return self.ref_source
+
+    def get_elength(self):
         """
-        Readout in CW mode. After initialisation of the measurements a pause need to be set.
-        The pause = sweep time + 0.2 s. Otherwise readout request will come before measurement ends
+        Defines the offset parameter for test port 1 as an electrical length
+        Returns:electrical length in m
+
         """
 
+        self.elength = float(self.query('SENSe1:CORRection:EDELay1:ELENgth?')[:-1])
+        return self.elength
+
+    def get_avg_status(self):
+        """
+        Query sweep average.
+        Returns: 0 - off, 1 - on
+
+        """
+        self.avg_status = int(self.query('SENSe1:AVERage:STATe?')[:-1])
+        return self.avg_status
+
+    def get_avgs(self):
+        """
+        Queries the number of consecutive sweeps to be combined for the sweep average
+        Returns: averages
+
+        """
+        self.avgs = self.query('SENSe1:AVERage:COUNt?')
+        return self.avgs
+
+    def get_data(self):
+        """
+        Readout in any mode. After initialisation of the measurements a pause need to be set.
+        The pause = sweep time + 0.2 s.
+        Otherwise, readout request will come before measurement ends.
+
+        Returns: data in specified form
+
+        """
         self.set_on()
         self.write("INIT1:IMM")
-        time.sleep(0.2 + self.get_sweep_time())
+        sweep_time = self.get_sweep_time()
+        now2 = datetime.now()
+        print(now2, '+', sweep_time/60, 'min')
+        time.sleep(0.4 + sweep_time)
+
         data_str = self.query("CALC1:DATA? SDAT")
         data = np.array(data_str.rstrip().split(",")).astype("float64")
+
         s = data[0::2] + 1j * data[1::2]
-        self.set_off()
+        # self.set_off()
 
         if self.form == 0:
             # print('WARNING: CHECK ANGLE (rad or deg)!')
@@ -145,36 +223,79 @@ class VNA(v.BaseVisa):
             return
 
     def get_sweep_time(self):
+        """
+        Function to get estimated time for one full sweep
+        Returns: sweep time in seconds
+
+        """
         return self.query_float('SENS1:SWE:TIME?')
 
     def get_power(self):
+        """
+        Function to get output power
+        Returns: output power in db
+
+        """
         self.power = self.query_float('SOUR1:POW?')
         return self.power
 
     def get_band(self):
+        """
+        Function to get bandwidth
+        Returns: bandwidth in Hz
+
+        """
         self.band = self.query_float(':SENS1:BAND?')
         return self.band
 
     def get_nop(self):
+        """
+        Function to get number of points
+        Returns: number of points
+
+        """
         self.nop = int(self.query_float('SENS1:SWE:POIN?'))
         return self.nop
 
     def get_start_freq(self):
+        """
+        Function to get start frequency in the linear sweep regime
+        Returns: start frequency in Hz
+
+        """
         self.star_freq = self.query_float(':SENS1:FREQ:STAR?')
         return self.star_freq
 
     def get_stop_freq(self):
+        """
+        Function to get stop frequency in the linear sweep regime
+        Returns: stop frequency in Hz
+
+        """
         self.stop_freq = self.query_float(':SENS1:FREQ:STOP?')
         return self.stop_freq
 
     def get_cent_freq(self):
+        """
+        Function to get center frequency in the linear sweep regime
+        Returns: center frequency in Hz
+
+        """
         self.cent_freq = self.query_float(':SENS1:FREQ:CENT?')
         return self.cent_freq
 
+    def get_span(self):
+        """
+       Function to get frequency span in the linear sweep regime
+       Returns: span in Hz
+
+       """
+        self.span = float(self.query('SENS1:FREQ:SPAN?')[:-1])
+        return self.span
+
     def get_freq(self):
         """
-        Function to get frequency sweep array
-        Args: None
+        Function to get frequency sweep array in linear regime
 
         Returns: freq array
 
@@ -183,27 +304,64 @@ class VNA(v.BaseVisa):
         self.star_freq = self.get_start_freq()
         self.stop_freq = self.get_stop_freq()
         self.nop = self.get_nop()
-        freq = np.linspace(self.star_freq, self.stop_freq, self.nop)
-        return freq
+        self.freq = np.linspace(self.star_freq, self.stop_freq, self.nop)
+        return self.freq
 
     def get_status(self):
-        self.status = self.query_int('OUTP?')
-        return self.status
+        """
+        Function to get status of output power (on/off)
+        Returns: o - off, 1 - on
+
+        """
+        self.status_output = int(self.query('OUTP?')[:-1])
+        return self.status_output
+
+    def set_avgs(self, factor=1):
+        """
+        Defines the number of consecutive sweeps to be combined for the sweep average
+
+        Args:
+            factor: number of averages
+
+        Returns: None
+
+        """
+
+        self.avgs = factor
+        self.write('SENSe1:AVERage:COUNt {}'.format(str(self.avgs)))
 
     def set_lin(self):
+        """
+        Sets measurement mode to Linear.
+        Returns: None
+
+        """
         self.write('SENS1:SWE:TYPE LIN')
         self.type = self.get_sweep_type()
-        return self.type
 
     def set_cw(self):
-        self.write('SENS1:SWE:TYPE CW')
+        """
+        Sets measurement mode to CW.
+        Returns: None
+
+        """
+        self.write('SENS1:SWE:TYPE POIN')
         self.type = self.get_sweep_type()
-        return self.type
 
     def set_on(self):
+        """
+        Function turns ON output power
+        Returns: None
+
+        """
         self.write('OUTP ON')
 
     def set_off(self):
+        """
+        Function turns OFF output power
+        Returns: None
+
+        """
         self.write('OUTP OFF')
 
     def set_cw_freq(self, freq):
@@ -211,7 +369,7 @@ class VNA(v.BaseVisa):
         Set single frequency point for CW mode in Hz
         """
 
-        self.write(':SENS1:SWE:TYPE CW')  # change to CW mode
+        self.set_cw()  # change to CW mode
         if freq < 100:
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             freq = freq * 1e9
@@ -220,19 +378,19 @@ class VNA(v.BaseVisa):
 
     def set_start_freq(self, start_fr):
         self.star_freq = start_fr
-        self.write('SENS1:FREQ: STAR {}'.format(str(self.star_freq)))
+        self.write('SENS1:FREQ:STAR {}'.format(str(self.star_freq)))
 
     def set_stop_freq(self, stop_fr):
         self.stop_freq = stop_fr
-        self.write('SENS1:FREQ: STOP {}'.format(str(self.stop_freq)))
+        self.write('SENS1:FREQ:STOP {}'.format(str(self.stop_freq)))
 
     def set_span(self, span):
         self.span = span
-        self.write('SENS1:FREQ: SPAN {}'.format(str(self.span)))
+        self.write('SENS1:FREQ:SPAN {}'.format(str(self.span)))
 
     def set_cent_freq(self, cent_fr):
         self.cent_freq = cent_fr
-        self.write('SENS1:FREQ: CENT {}'.format(str(self.cent_freq)))
+        self.write('SENS1:FREQ:CENT {}'.format(str(self.cent_freq)))
 
     def set_freq_start_stop(self, start_fr, stop_fr, nop):
         """
@@ -275,9 +433,9 @@ class VNA(v.BaseVisa):
         self.set_span(self.stop_freq)
 
     def set_power(self, meas_power):
-        if meas_power >= 10:
+        if meas_power >= 15:
             print('Too high power! Power=10 will be set')
-            meas_power = 10
+            meas_power = 15
         self.power = meas_power
         self.write('SOUR1:POW {}'.format(str(self.power)))
 

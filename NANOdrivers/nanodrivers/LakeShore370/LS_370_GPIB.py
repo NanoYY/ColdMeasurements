@@ -10,7 +10,12 @@ import nanodrivers.visa_drivers.visa_dev as v
 
 global_ls_address = 'GPIB0::5::INSTR'
 
+"""
+For Finncryo lakeshore bridge: 
 
+3.16 mA (100%) --> 305 mK 
+
+"""
 def get_class_attributes(print_it=False):
     """
     Function returns all class attributes
@@ -33,17 +38,18 @@ def get_class_attributes(print_it=False):
 class LakeShore(v.BaseVisa):
     """
     Class for Lake Shore 370.
+    https://www.lakeshore.com/docs/default-source/product-downloads/manuals/370_manual.pdf?sfvrsn=6574e993_1
      Args:
          device_num:
              GPIB num (float) or full device address (string)
-
      """
     def __init__(self, device_num=global_ls_address):
         super().__init__(device_num)
 
         self.PID = np.array([nan, nan, nan])
+        self.get_PID()
 
-        self.channel_temp = np.array([nan, nan, nan, nan, nan, nan, nan, nan])
+        self.channel_temp = np.full(20, np.nan)
 
         for i in [1, 2, 5, 6]:
             self.get_temp(i)
@@ -65,7 +71,7 @@ class LakeShore(v.BaseVisa):
                 list_of_att[attribute] = str(value)
         return list_of_att
 
-    def get_temp(self, channel=6):
+    def get_temp(self, channel):
         """
         Function to get temperature of specific channel
         Args:
@@ -74,8 +80,9 @@ class LakeShore(v.BaseVisa):
         Returns: temperature in Kelvins
 
         """
-        self.channel_temp[channel] = float(self.query('RDGK? {}').format(channel)[:-2])
-        return self.channel_temp[channel]
+        channel = int(channel)
+        self.channel_temp[channel-1] = float((self.query('RDGK? {}'.format(channel)))[:-2])
+        return self.channel_temp[channel-1]
 
     def get_PID(self):
         """
@@ -89,72 +96,90 @@ class LakeShore(v.BaseVisa):
 
         return self.PID
 
-    def set_setpoint(self, temp, channel=6, sudo_mode=False):
+    def get_setpoint(self):
         """
         Function to set temperature of specific channel
         Args:
-            temp: temperature in Kelvins
+            set_temp: temperature in Kelvins to be set on channel
             channel: channel number [1..6]
-            sudo_mode: If this mode is used, no restriction will be applied. Be careful.
         Returns: None
 
         """
-        if temp<1.4:
-            self.channel_temp[channel] = temp
-            self.write('SETP {}'.format(str(self.channel_temp[channel])))
-            return True
-        elif sudo_mode:
-            print('WARNING! Temperature might be too high: {} K'.format(temp))
-            print('However, the temperature {} K will be set as new set point.'.format(temp))
-            self.channel_temp[channel] = temp
-            self.write('SETP {}'.format(str(self.channel_temp[channel])))
-            return True
-        else:
-            print('WARNING! Temperature is too high: {} K'.format(temp))
-            print('The temperature {} K will NOT be set as new set point.'.format(temp))
-            return False
+        return float(self.query('SETP?')[:-2])
 
-    def set_new_temperature(self, temp):
+    def set_setpoint(self, set_temp):
         """
-        Function to set new temperature on MC. Uses predefined PID parameters.
-        Main advantage is minimal waiting time. In the future adjustment of PID parameters will be added.
-
+        Function to set temperature of specific channel
         Args:
-            temp: Temperature in Kelvins
-
-        Returns: True once setting new temperature is finished.
+            set_temp: temperature in Kelvins to be set on channel
+            channel: channel number [1..6]
+        Returns: None
 
         """
-        initial_temperature = self.get_temp()
+        self.write('SETP {}'.format(str(set_temp)))
 
-        # to prevent overheating when the temperature difference is too high, first set 0.8 of set point.
+    def set_PID(self, P, I, D):
+        """
+        Function to set PID
+        Args:
+            P: gain, must have a value greater than zero for the control loop to operate.
+            The value for control loop Proportional (gain): 0.001 to 1000.
 
-        delta = temp-initial_temperature
-        if delta<0:
-            self.set_setpoint(temp)
-            print('Just cooling down')
-        else:
-            new_temp1 = initial_temperature + 0.8*delta
-            self.set_setpoint(new_temp1)
-            print('Heats up to initial temperature + 0.8*delta')
-            time.sleep(60*delta*2)
-            new_temp2 = initial_temperature + 0.9 * delta
-            self.set_setpoint(new_temp2)
-            print('Heats up to initial temperature + 0.9*delta')
-            time.sleep(30*delta*2)
-            new_temp3 = initial_temperature + delta
-            self.set_setpoint(new_temp3)
-            print('Heats up to set point')
-            time.sleep(20*delta*2)
+            I: The value for control loop Integral (reset): 0 to 10000.
+            D: The value for control loop Derivative (rate): 0 to 2500.
 
-        temps = np.array([])
-        for i in range(5):
-            temps = np.append(temps, self.get_temp())
-            time.sleep(10)
+        Example: PID 10,100,20[term] – P = 10, I = 100 seconds, and D = 20 seconds.
 
-        while not(temp-0.001 < np.mean(temps) < temp+0.001):
-            temps = np.delete(temps, 0)
-            temps = np.append(temps, self.get_temp())
-            time.sleep(10)
+        Returns: None
 
-        return True
+        """
+        self.write('PID {},{},{}'.format(str(P), str(I), str(D)))
+
+    def adjust_PID(self):
+        """
+        Function to update PID accordingly to the temperature using a table
+        TODO: setUP script to sweep over PID parameters to find optimal
+        Returns: None
+        """
+
+        current_temp = self.get_setpoint()
+        print(current_temp)
+        P = 20
+        I = 0
+        D = 0
+        if current_temp <= 0.5:
+            P = 20
+            I = 0.1
+            D = 2
+        elif 1.6 <= current_temp <= 1.9:
+            P = 20
+            I = 3
+            D = 2
+        elif 1.9 < current_temp <= 2.1:
+            P = 20
+            I = 4
+            D = 2
+        elif 2.1 < current_temp <= 2.3:
+            P = 8
+            I = 4
+            D = 6
+        elif 2.3 < current_temp <= 2.7:
+            P = 30
+            I = 5
+            D = 20
+        elif 2.7 < current_temp <= 2.9:
+            P = 5
+            I = 1
+            D = 2
+        elif 2.9 < current_temp <= 3.2:
+            P = 38
+            I = 2
+            D = 8
+        elif 3.2 < current_temp <= 6:
+            P = 30
+            I = 4
+            D = 5
+
+        self.set_PID(P, I, D)
+        print('PID param updated to {},{},{}'.format(str(P), str(I), str(D)))
+
