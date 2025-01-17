@@ -88,6 +88,7 @@ class T1(Base):
         readout_freq: float,
 
         readout_phase: float,
+        downsampling: int,
 
         LO_amp: float,
         IF_amp: float,
@@ -127,6 +128,7 @@ class T1(Base):
         self.readout_freq = readout_freq
 
         self.readout_phase = readout_phase
+        self.downsampling = downsampling
 
         self.LO_amp = LO_amp
         self.IF_amp = IF_amp
@@ -191,6 +193,7 @@ class T1(Base):
                 port=presto_port,
                 ext_ref_clk=ext_ref_clk,
                 **CONVERTER_CONFIGURATION,
+                downsampling=self.downsampling,
         ) as pls:
             assert pls.hardware is not None
 
