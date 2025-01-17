@@ -4,7 +4,9 @@ nanodrivers.egg-info/PKG-INFO
 nanodrivers.egg-info/SOURCES.txt
 nanodrivers.egg-info/dependency_links.txt
 nanodrivers.egg-info/top_level.txt
+nanodrivers/LakeShore370/LS_370_GPIB.py
 nanodrivers/LakeShore370/__init__.py
+nanodrivers/LakeShore370/visa_dev.py
 nanodrivers/non_visa_drivers/Dig_Attenuator.py
 nanodrivers/non_visa_drivers/Dig_PhaseShifter.py
 nanodrivers/non_visa_drivers/__init__.py
@@ -17,10 +19,10 @@ nanodrivers/scripts_for_matlab/dig_att.py
 nanodrivers/visa_drivers/AWG.py
 nanodrivers/visa_drivers/DC.py
 nanodrivers/visa_drivers/FFT_SA.py
-nanodrivers/visa_drivers/Locking.py
 nanodrivers/visa_drivers/__init__.py
 nanodrivers/visa_drivers/anapico.py
 nanodrivers/visa_drivers/global_settings.py
+nanodrivers/visa_drivers/lockin.py
 nanodrivers/visa_drivers/signal_analyser.py
 nanodrivers/visa_drivers/visa_dev.py
 nanodrivers/visa_drivers/vna.py

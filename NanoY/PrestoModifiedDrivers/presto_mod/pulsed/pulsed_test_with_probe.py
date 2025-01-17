@@ -42,34 +42,36 @@ CONVERTER_CONFIGURATION = {
 IDX_LOW = 1_500
 IDX_HIGH = 2_000
 
+nr_samples = 1400
+edge = 10
+t = np.linspace(1, nr_samples, nr_samples)
 
-# def gate(t, start, stop):
-#     return np.heaviside(t - start, 1) - np.heaviside(t - stop, 1)
-#
-#
-# def gaussian(x, cent, sig):
-#     return np.exp(-np.power((x - cent) / sig, 2.0) / 2)
-#
-#
-# def sin2(number_of_samples, start=1, stop=9, sig_feft=0.2, sig_right=0.2):
+
+def gate(t, start, stop):
+    return np.heaviside(t - start, 1) - np.heaviside(t - stop, 1)
+
+
+def gaussian(t, cent, sig, start, end):
+    Result = np.zeros(int(t[-1]))
+    Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
+    return Result
+
+
+# def sin2(nr_of_samples, start=0, stop=9, sig_feft=2, sig_right=0.001):
 #     t = np.linspace(0, 10, number_of_samples)
-#     return gate(t, start, stop) + gaussian(t, cent=start, sig=sig_feft) * (1 - np.heaviside(t - start, 1)) + gaussian(t, cent=stop, sig=sig_right) * (np.heaviside(t - stop, 1))
+#     return gate(t, start, stop) + gaussian(t, cent=start, sig=sig_feft)*(1-np.heaviside(t-start, 1)) + gaussian(t, cent=stop, sig=sig_right)*(np.heaviside(t-stop, 1))
 
-# def gate(t, start, stop):
-#     return np.heaviside(t - start, 1) - np.heaviside(t - stop, 1)
-#
-#
-# def gaussian(t, cent, sig, start, end):
-#     Result = np.zeros(int(t[-1]))
-#     Result[start:end] = np.exp(-np.power((t[start:end] - cent) / sig, 2.0) / 2)
-#     return Result
-#
-# def Gauss(nr_samples,drag,edge=50,sig_left=20,sig_right=20):
-#     t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
-#     Left = gaussian(t, edge, sig_left, 0, edge)
-#     Middle = gate(t, edge+1, t[-edge])
-#     Right = gaussian(t, int(t[-edge]), sig_right,int(t[-edge-1]),int(t[-1]))
-#     return Left + Middle + Right
+def Gauss(nr_samples, drag, edge=100, sig_left=10, sig_right=10):
+    t = np.linspace(1, nr_samples, nr_samples, endpoint=True)
+    Left = gaussian(t, edge, sig_left, 0, edge)
+    Middle = gate(t, edge + 1, t[-edge])
+    Right = gaussian(t, int(t[-edge]), sig_right, int(t[-edge - 1]), int(t[-1]))
+    return Left + Middle + Right
+
+
+def sin2(nr_samples: int, drag: float = 0.0) -> np.ndarray:
+    x = np.linspace(0.0, 1.0, nr_samples, endpoint=False)
+    return np.sin(np.pi * x) ** 2
 
 class T1(Base):
     def __init__(
@@ -85,6 +87,8 @@ class T1(Base):
         PR_freq: float,
         readout_freq: float,
 
+        readout_phase: float,
+
         LO_amp: float,
         IF_amp: float,
         PR_amp: float,
@@ -99,6 +103,7 @@ class T1(Base):
         readout_delay: float,
         num_repeats: int,
         num_averages: int,
+        sampling_avg: int = 1,
 
         envelope_function = None,  # function
 
@@ -121,6 +126,8 @@ class T1(Base):
         self.PR_freq = PR_freq
         self.readout_freq = readout_freq
 
+        self.readout_phase = readout_phase
+
         self.LO_amp = LO_amp
         self.IF_amp = IF_amp
         self.PR_amp = PR_amp
@@ -135,6 +142,7 @@ class T1(Base):
         self.readout_delay = np.atleast_1d(readout_delay).astype(np.float64)
         self.num_repeats = num_repeats
         self.num_averages = num_averages
+        self.sampling_avg = sampling_avg
 
         self.t_arr = None  # replaced by run
         self.data = None  # replaced by run
@@ -175,6 +183,7 @@ class T1(Base):
         presto_address: str,
         presto_port: int = None,
         ext_ref_clk: bool = False,
+        run_count: int = 0,
     ) -> str:
         # Instantiate interface class
         with pulsed.Pulsed(
@@ -193,9 +202,11 @@ class T1(Base):
             pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
             pls.hardware.set_inv_sinc(self.IF_port, 2)
             pls.hardware.set_inv_sinc(self.PR_port, 2)
+            pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
                 in_ports=[self.readout_port1, self.readout_port2],
+                in_phase=self.readout_phase,
             )
             pls.hardware.configure_mixer(
                 freq=self.PR_freq,
@@ -286,41 +297,41 @@ class T1(Base):
             # IF_envelope = self.IF_envelope_function(IF_ns, drag=self.drag)
             # print(IF_envelope_function.type)
 
-            # IF_pulse = pls.setup_long_drive(
-            #     output_port=self.IF_port,
-            #     group=0,
-            #     duration=self.IF_duration,
-            #     amplitude=1.0,
-            #     amplitude_q=1.0,
-            #     rise_time=0e-9,
-            #     fall_time=0e-9,
-            # )
-
-            IF_pulse = pls.setup_template(
+            IF_pulse = pls.setup_long_drive(
                 output_port=self.IF_port,
                 group=0,
-                template=self.IF_envelope_function,
-                template_q=self.IF_envelope_function if self.drag == 0.0 else None,
-                envelope=True,
+                duration=self.IF_duration,
+                amplitude=1.0,
+                amplitude_q=1.0,
+                rise_time=0e-9,
+                fall_time=0e-9,
             )
 
-            PR_pulse = pls.setup_template(
-                output_port=self.PR_port,
-                group=0,
-                template=self.PR_envelope_function,
-                template_q=self.PR_envelope_function if self.drag == 0.0 else None,
-                envelope=True,
-            )
+            # IF_pulse = pls.setup_template(
+            #     output_port=self.IF_port,
+            #     group=0,
+            #     template=self.IF_envelope_function,
+            #     template_q=self.IF_envelope_function if self.drag == 0.0 else None,
+            #     envelope=True,
+            # )
 
-            # PR_pulse = pls.setup_long_drive(
+            # PR_pulse = pls.setup_template(
             #     output_port=self.PR_port,
             #     group=0,
-            #     duration=self.PR_duration,
-            #     amplitude=1.0,
-            #     amplitude_q=1.0,
-            #     rise_time=0e-9,
-            #     fall_time=0e-9,
+            #     template=self.PR_envelope_function,
+            #     template_q=self.PR_envelope_function if self.drag == 0.0 else None,
+            #     envelope=True,
             # )
+
+            PR_pulse = pls.setup_long_drive(
+                output_port=self.PR_port,
+                group=0,
+                duration=self.PR_duration,
+                amplitude=1.0,
+                amplitude_q=1.0,
+                rise_time=0e-9,
+                fall_time=0e-9,
+            )
 
             # Setup sampling window
             pls.set_store_ports([self.readout_port1, self.readout_port2])
@@ -331,6 +342,7 @@ class T1(Base):
             # ******************************
 
             print('New run started at', datetime.now(), end='\r')
+
             T = 0.0  # s, start at time zero ...
 
             pls.store(T + self.readout_delay)
@@ -359,7 +371,20 @@ class T1(Base):
                 num_averages=self.num_averages,
                 print_time=False,
             )
-            self.t_arr, self.data = pls.get_store_data()
+
+            # Sampling rate adjustment
+
+            if self.sampling_avg>1:
+                # time array is shortened according to the new averaged data.
+                self.t_arr = self.t_arr[::self.sampling_avg]
+
+                # Reshape the array into 2D with each row containing sampling_avg elements.
+                # If the array length is not divisible by sampling_avg, the extra elements are dropped.
+                # Compute the mean along each row to get the averaged result.
+                arr = np.array(pls.get_store_data())
+                self.data = np.mean(arr[:len(arr) - len(arr) % self.sampling_avg].reshape(-1, self.sampling_avg), axis=1)
+            else:
+                self.t_arr, self.data = pls.get_store_data()
 
         list_of_att = dict()
         for attribute, value in self.__dict__.items():  # will save all variable wich startes with self.
