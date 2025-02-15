@@ -88,6 +88,7 @@ class Korotkov(Base):
         readout_freq: float,
 
         readout_phase: float,
+        probe_phase: float,
         downsampling: int,
 
         LO_amp: float,
@@ -128,6 +129,7 @@ class Korotkov(Base):
         self.readout_freq = readout_freq
 
         self.readout_phase = readout_phase
+        self.probe_phase = probe_phase
         self.downsampling = downsampling
 
         self.LO_amp = LO_amp
@@ -336,12 +338,15 @@ class Korotkov(Base):
                 fall_time=0e-9,
             )
 
-            PR_pulse_Pi = pls.setup_long_drive(
+            PR_amp_I = np.real(np.exp(1j * self.probe_phase))
+            PR_amp_Q = np.imag(np.exp(1j * self.probe_phase))
+
+            PR_pulse_change = pls.setup_long_drive(
                 output_port=self.PR_port,
                 group=0,
                 duration=self.PR_duration,
-                amplitude=0.0,
-                amplitude_q=-1.0,
+                amplitude=PR_amp_I,
+                amplitude_q=PR_amp_Q,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
@@ -363,7 +368,7 @@ class Korotkov(Base):
             pls.output_pulse(T, PR_pulse)
 
             pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
-            pls.output_pulse(self.PR_duration, PR_pulse_Pi)
+            pls.output_pulse(self.PR_duration, PR_pulse_change)
             T += 2*self.delay
 
             pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
