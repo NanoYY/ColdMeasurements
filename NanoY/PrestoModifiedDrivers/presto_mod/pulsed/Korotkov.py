@@ -331,7 +331,7 @@ class Korotkov(Base):
                 group=0,
                 duration=self.PR_duration,
                 amplitude=1.0,
-                amplitude_q=1.0,
+                amplitude_q=0.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
@@ -340,7 +340,7 @@ class Korotkov(Base):
                 output_port=self.PR_port,
                 group=0,
                 duration=self.PR_duration,
-                amplitude=1.0,
+                amplitude=0.0,
                 amplitude_q=-1.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
