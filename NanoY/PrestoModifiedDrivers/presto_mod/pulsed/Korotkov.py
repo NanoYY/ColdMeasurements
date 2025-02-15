@@ -338,8 +338,8 @@ class Korotkov(Base):
                 fall_time=0e-9,
             )
 
-            PR_amp_I = np.real(np.exp(1j * self.probe_phase))
-            PR_amp_Q = np.imag(np.exp(1j * self.probe_phase))
+            PR_amp_I = np.real(np.exp(1j * np.round(self.probe_phase),3))
+            PR_amp_Q = np.imag(np.exp(1j * np.round(self.probe_phase),3))
 
             PR_pulse_change = pls.setup_long_drive(
                 output_port=self.PR_port,
