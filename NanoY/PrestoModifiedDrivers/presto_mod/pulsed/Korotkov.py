@@ -341,7 +341,7 @@ class Korotkov(Base):
                 group=0,
                 duration=self.PR_duration,
                 amplitude=0.0,
-                amplitude_q=1.0,
+                amplitude_q=-1.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
