@@ -359,14 +359,13 @@ class PhotonSplitting(Base):
 
             pls.store(T + self.readout_delay)
 
-            pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
-            pls.output_pulse(T, PR_pulse)
 
-            for i in range(self.pulse_repeats-1):
 
-                T += self.delay
+            for i in range(self.pulse_repeats):
                 pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
-                pls.output_pulse(self.PR_duration)
+                pls.output_pulse(T, PR_pulse)
+
+                T += self.PR_duration + self.delay
 
             # pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
             # pls.output_pulse(T, LO_pulse)
