@@ -379,6 +379,8 @@ class PhotonSplitting(Base):
             # # Wait for decay
             # T += self.wait_delay
 
+            T = self.wait_delay
+
             pls.run(
                 period=T,
                 repeat_count=self.num_repeats,
