@@ -32,6 +32,8 @@ class TwoTonePower(Base):
         num_averages: int,
         dither: bool = True,
         num_skip: int = 0,
+        save_: bool = False,
+
     ) -> None:
         self.readout_freq = readout_freq
         self.control_freq_center = control_freq_center
@@ -48,6 +50,8 @@ class TwoTonePower(Base):
 
         self.control_freq_arr = None  # replaced by run
         self.resp_arr = None  # replaced by run
+
+        self.save_ = save_
 
     def run(
         self,
@@ -108,7 +112,11 @@ class TwoTonePower(Base):
             ig.set_frequencies(0.0)
 
             lck.apply_settings()
+
+            # disable automatic selection of sampling rate
+            # so it doesn't change in the middle of the sweep
             lck.hardware.dac_autoconfig = False
+            lck.hardware._defer_mixer_config = False
 
             pb = ProgressBar(nr_amps * nr_freq)
             pb.start()
@@ -122,6 +130,7 @@ class TwoTonePower(Base):
                         out_ports=self.control_port,
                     )
                     lck.apply_settings()
+
                     _d = lck.get_pixels(self.num_skip + self.num_averages, quiet=True)
                     data_i = _d[self.input_port][1][:, 0]
                     data_q = _d[self.input_port][2][:, 0]
@@ -141,7 +150,8 @@ class TwoTonePower(Base):
         return self.save()
 
     def save(self, save_filename: Optional[str] = None) -> str:
-        return super()._save(__file__, save_filename=save_filename)
+        if self.save_: return super()._save(__file__, save_filename=save_filename)
+        else: return "File not saved"
 
     @classmethod
     def load(cls, load_filename: str) -> "TwoTonePower":
@@ -257,7 +267,7 @@ class TwoTonePower(Base):
         )
         if linecut:
             line_sel = ax1.axhline(amp_dBFS[self._AMP_IDX], ls="--", c="k", lw=3, animated=blit)
-        ax1.set_title(f"Probe frequency: {self.readout_freq/1e9:.2f} GHz")
+        ax1.set_title(f"Probe frequency: {self.readout_freq / 1e9:.2f} GHz")
         ax1.set_xlabel("Pump frequency [GHz]")
         ax1.set_ylabel("Pump amplitude [dBFS]")
         cb = fig1.colorbar(im)
