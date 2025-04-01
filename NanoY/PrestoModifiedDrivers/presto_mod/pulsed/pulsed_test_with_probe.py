@@ -206,10 +206,10 @@ class T1(Base):
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
             pls.hardware.set_dac_current(self.PR_port, DAC_CURRENT)  # control of sample / pump port
-            pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
-            pls.hardware.set_inv_sinc(self.IF_port, 2)
-            pls.hardware.set_inv_sinc(self.PR_port, 2)
-            pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
+            # pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
+            # pls.hardware.set_inv_sinc(self.IF_port, 2)
+            # pls.hardware.set_inv_sinc(self.PR_port, 2)
+            # pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
                 in_ports=[self.readout_port1, self.readout_port2],
@@ -308,8 +308,8 @@ class T1(Base):
                 output_port=self.IF_port,
                 group=0,
                 duration=self.IF_duration,
-                amplitude=1.0,
-                amplitude_q=0.0,
+                amplitude=0.0,
+                amplitude_q=1.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
