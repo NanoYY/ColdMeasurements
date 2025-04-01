@@ -34,9 +34,7 @@ DAC_CURRENT = 40_500  # uA
 
 CONVERTER_CONFIGURATION = {
     "adc_mode": AdcMode.Mixed,
-    "adc_fsample": None,
     "dac_mode": DacMode.Mixed,
-    "dac_fsample": None,
 }
 
 IDX_LOW = 1_500
@@ -220,12 +218,12 @@ class T1(Base):
             pls.hardware.configure_mixer(
                 freq=self.PR_freq,
                 out_ports=self.PR_port,
-                sync = True,
+                sync = False,
             )
             pls.hardware.configure_mixer(
                 freq=self.LO_freq,
                 out_ports=self.LO_port,
-                sync=True,
+                sync=False,
             )
             pls.hardware.configure_mixer(
                 freq=self.IF_freq,
@@ -288,7 +286,7 @@ class T1(Base):
                 group=0,
                 duration=self.LO_duration,
                 amplitude=1.0,
-                amplitude_q=1.0,
+                amplitude_q=0.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
@@ -311,7 +309,7 @@ class T1(Base):
                 group=0,
                 duration=self.IF_duration,
                 amplitude=1.0,
-                amplitude_q=1.0,
+                amplitude_q=0.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
@@ -337,7 +335,7 @@ class T1(Base):
                 group=0,
                 duration=self.PR_duration,
                 amplitude=1.0,
-                amplitude_q=1.0,
+                amplitude_q=0.0,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
