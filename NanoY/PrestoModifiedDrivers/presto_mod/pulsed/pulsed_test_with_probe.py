@@ -34,7 +34,7 @@ DAC_CURRENT = 40_500  # uA
 
 CONVERTER_CONFIGURATION = {
     "adc_mode": AdcMode.Mixed,
-    "adc_fsample": AdcFSample.G2,
+    "adc_fsample": None,
     "dac_mode": DacMode.Mixed,
     "dac_fsample": None,
 }
@@ -75,43 +75,46 @@ def sin2(nr_samples: int, drag: float = 0.0) -> np.ndarray:
 
 class T1(Base):
     def __init__(
-        self,
-        LO_port: int,
-        IF_port: int,
-        PR_port: int,
-        readout_port1: int,
-        readout_port2: int,
+            self,
+            LO_port: int,
+            IF_port: int,
+            PR_port: int,
+            readout_port1: int,
+            readout_port2: int,
 
-        LO_freq: float,
-        IF_freq: float,
-        PR_freq: float,
-        readout_freq: float,
+            LO_freq: float,
+            IF_freq: float,
+            PR_freq: float,
+            readout_freq: float,
 
-        readout_phase: float,
-        downsampling: int,
+            readout_phase: float,
+            probe_phase: float,
+            downsampling: int,
 
-        LO_amp: float,
-        IF_amp: float,
-        PR_amp: float,
+            LO_amp: float,
+            IF_amp: float,
+            PR_amp: float,
 
-        LO_duration: float,
-        IF_duration: float,
-        PR_duration: float,
-        readout_duration: float,
+            LO_duration: float,
+            IF_duration: float,
+            PR_duration: float,
+            readout_duration: float,
 
-        delay: float,
-        wait_delay: float,
-        readout_delay: float,
-        num_repeats: int,
-        num_averages: int,
-        sampling_avg: int = 1,
+            delay: float,
+            wait_delay: float,
+            readout_delay: float,
 
-        envelope_function = None,  # function
+            pulse_repeats: int,
+            num_repeats: int,
+            num_averages: int,
+            sampling_avg: int = 1,
 
-        drag: float = 0.0,
-        save_: bool = False,
-        file_folder = str,
-        file_name = 'Pulse_test',
+            envelope_function=None,  # function
+
+            drag: float = 0.0,
+            save_: bool = False,
+            file_folder=str,
+            file_name='Pulse_test',
 
 
 
@@ -128,6 +131,7 @@ class T1(Base):
         self.readout_freq = readout_freq
 
         self.readout_phase = readout_phase
+        self.probe_phase = probe_phase
         self.downsampling = downsampling
 
         self.LO_amp = LO_amp
@@ -139,9 +143,11 @@ class T1(Base):
         self.PR_duration = PR_duration
         self.readout_duration = readout_duration
 
-        self.delay =  np.atleast_1d(delay).astype(np.float64)              # if a single float is passed,
-        self.wait_delay = np.atleast_1d(wait_delay).astype(np.float64)     # it's converted into a single-element array
+        self.delay = np.atleast_1d(delay).astype(np.float64)  # if a single float is passed,
+        self.wait_delay = np.atleast_1d(wait_delay).astype(np.float64)  # it's converted into a single-element array
         self.readout_delay = np.atleast_1d(readout_delay).astype(np.float64)
+
+        self.pulse_repeats = pulse_repeats
         self.num_repeats = num_repeats
         self.num_averages = num_averages
         self.sampling_avg = sampling_avg
