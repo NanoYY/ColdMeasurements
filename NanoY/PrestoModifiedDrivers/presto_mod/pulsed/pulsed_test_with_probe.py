@@ -206,10 +206,10 @@ class T1(Base):
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
             pls.hardware.set_dac_current(self.PR_port, DAC_CURRENT)  # control of sample / pump port
-            # pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
-            # pls.hardware.set_inv_sinc(self.IF_port, 2)
-            # pls.hardware.set_inv_sinc(self.PR_port, 2)
-            # pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
+            pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
+            pls.hardware.set_inv_sinc(self.IF_port, 2)
+            pls.hardware.set_inv_sinc(self.PR_port, 2)
+            pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
             pls.hardware.configure_mixer(
                 freq=self.readout_freq,
                 in_ports=[self.readout_port1, self.readout_port2],
@@ -330,12 +330,25 @@ class T1(Base):
             #     envelope=True,
             # )
 
+            # PR_pulse = pls.setup_long_drive(
+            #     output_port=self.PR_port,
+            #     group=0,
+            #     duration=self.PR_duration,
+            #     amplitude=1.0,
+            #     amplitude_q=0.0,
+            #     rise_time=0e-9,
+            #     fall_time=0e-9,
+            # )
+
+            PR_amp_I = np.round(np.real(np.exp(1j * np.round(self.probe_phase,3))),5)
+            PR_amp_Q = np.round(np.imag(np.exp(1j * np.round(self.probe_phase,3))),5)
+
             PR_pulse = pls.setup_long_drive(
                 output_port=self.PR_port,
                 group=0,
                 duration=self.PR_duration,
-                amplitude=1.0,
-                amplitude_q=0.0,
+                amplitude=PR_amp_I,
+                amplitude_q=PR_amp_Q,
                 rise_time=0e-9,
                 fall_time=0e-9,
             )
