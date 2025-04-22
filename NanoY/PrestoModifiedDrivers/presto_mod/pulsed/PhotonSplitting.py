@@ -34,7 +34,7 @@ DAC_CURRENT = 40_500  # uA
 
 CONVERTER_CONFIGURATION = {
     "adc_mode": AdcMode.Mixed,
-    "adc_fsample": AdcFSample.G2,
+    "adc_fsample": None,
     "dac_mode": DacMode.Mixed,
     "dac_fsample": None,
 }
@@ -220,12 +220,12 @@ class PhotonSplitting(Base):
             pls.hardware.configure_mixer(
                 freq=self.PR_freq,
                 out_ports=self.PR_port,
-                sync = True,
+                sync = False,
             )
             pls.hardware.configure_mixer(
                 freq=self.LO_freq,
                 out_ports=self.LO_port,
-                sync=True,
+                sync=False,
             )
             pls.hardware.configure_mixer(
                 freq=self.IF_freq,
@@ -361,19 +361,22 @@ class PhotonSplitting(Base):
 
 
 
-            for i in range(self.pulse_repeats):
-                pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
-                pls.output_pulse(T, PR_pulse)
+            # for i in range(self.pulse_repeats):
+            pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
+            pls.output_pulse(T, PR_pulse)
+            T += self.delay
 
-                T += self.PR_duration + self.delay
-
-            # pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
-            # pls.output_pulse(T, LO_pulse)
-            # T += self.delay
+            pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
+            pls.output_pulse(T, LO_pulse)
+            T += self.delay
             #
-            # pls.reset_phase(T, self.IF_port)
-            # pls.output_pulse(T, IF_pulse)
-            # T += self.delay
+            pls.reset_phase(T, self.IF_port)
+            pls.output_pulse(T, IF_pulse)
+            T += self.delay
+
+            T += self.PR_duration - 2*self.delay
+
+
             #
             # T += self.LO_duration
             # # Wait for decay
