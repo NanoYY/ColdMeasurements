@@ -91,6 +91,7 @@ class PhotonSplitting(Base):
 
         readout_phase: float,
         probe_phase: float,
+        HC_phase: float,
         downsampling: int,
 
         LO_amp: float,
@@ -138,6 +139,7 @@ class PhotonSplitting(Base):
 
         self.readout_phase = readout_phase
         self.probe_phase = probe_phase
+        self.HC_phase = HC_phase
         self.downsampling = downsampling
 
         self.LO_amp = LO_amp
@@ -349,14 +351,17 @@ class PhotonSplitting(Base):
                 fall_time=0e-9,
             )
 
+            HC_amp_I = np.round(np.real(np.exp(1j * np.round(self.HC_phase,3))),5)
+            HC_amp_Q = np.round(np.imag(np.exp(1j * np.round(self.HC_phase,3))),5)
+
             HC_pulse = pls.setup_long_drive(
                 output_port=self.HC_port,
                 group=0,
                 duration=self.HC_duration,
-                amplitude=1.0,
-                amplitude_q=1.0,
-                rise_time=0e-9,
-                fall_time=0e-9,
+                amplitude=HC_amp_I,
+                amplitude_q=HC_amp_Q,
+                rise_time=0e-9*self.downsampling,
+                fall_time=0e-9*self.downsampling,
             )
 
             # IF_pulse = pls.setup_template(
@@ -403,23 +408,23 @@ class PhotonSplitting(Base):
             pls.store(T + self.readout_delay)
 
             # for i in range(self.pulse_repeats):
-            pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
+            # pls.reset_phase(T, self.HC_port)  # set phase to 0 at given time
+            # pls.output_pulse(T, HC_pulse)
+            # T += self.delay
+
+            # pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
+            # pls.output_pulse(T, LO_pulse)
+            # T += self.delay
+            # #
+            # pls.reset_phase(T, self.IF_port)
+            # pls.output_pulse(T, IF_pulse)
+            # T += self.delay
+
+            pls.reset_phase(T, self.PR_port)
             pls.output_pulse(T, PR_pulse)
             T += self.delay
 
-            pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
-            pls.output_pulse(T, LO_pulse)
-            T += self.delay
-            #
-            pls.reset_phase(T, self.IF_port)
-            pls.output_pulse(T, IF_pulse)
-            T += self.delay
-
-            pls.reset_phase(T, self.IF_port)
-            pls.output_pulse(T, IF_pulse)
-            T += self.delay
-
-            T += self.PR_duration - 2*self.delay
+            T += self.PR_duration - self.delay
 
 
             #

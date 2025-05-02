@@ -343,8 +343,8 @@ class PhotonSplitting(Base):
                 duration=self.PR_duration,
                 amplitude=PR_amp_I,
                 amplitude_q=PR_amp_Q,
-                rise_time=2e-9,
-                fall_time=2e-9,
+                rise_time=4e-9,
+                fall_time=4e-9,
             )
 
             # Setup sampling window
