@@ -40,7 +40,7 @@ class ANAPICO(v.BaseVisa):
 
         self.channel_status = np.array([nan, nan, nan, nan])
         self.channel_freqs = np.array([nan, nan, nan, nan])
-        self.channel_pow = np.array([nan, nan, nan, nan])
+        self.channel_pows = np.array([nan, nan, nan, nan])
 
         for i in [1, 2, 3, 4]:
             self.get_status(i)
@@ -108,8 +108,8 @@ class ANAPICO(v.BaseVisa):
 
         """
         channel_py = channel - 1
-        self.channel_pow[channel_py] = self.query('SOUR{}:POW?'.format(str(channel)))
-        return self.channel_pow[channel_py]
+        self.channel_pows[channel_py] = self.query('SOUR{}:POW?'.format(str(channel)))
+        return self.channel_pows[channel_py]
 
     def set_on(self, channel):
         """
@@ -155,7 +155,7 @@ class ANAPICO(v.BaseVisa):
         channel_py = channel - 1
         command = r'SOUR{}:POW {}'.format(str(channel), str(ch_power))
         self.write(command)
-        self.channel_pow[channel_py] = ch_power
+        self.channel_pows[channel_py] = ch_power
 
     def set_freq(self, channel, frequency):
         """

@@ -87,7 +87,7 @@ class Anri(v.BaseVisa):
 
     def get_data(self):
         self.write('INIT:IMM')
-        time.sleep(20 + self.get_sweep_time())
+        time.sleep(self.get_sweep_time()*12)
         raw_data = self.query('TRAC? TRAC1')
         data = np.array(raw_data.split(','), dtype=float)
         return data
