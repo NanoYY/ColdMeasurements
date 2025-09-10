@@ -90,8 +90,9 @@ class VNA(v.BaseVisa):
             self.get_span()
             self.get_freq()
 
+        self.test = 0
         self.elength = nan
-        self.get_elength()
+        # self.get_elength()
 
         self.status_output = nan
         self.get_status()

@@ -1,7 +1,8 @@
 Metadata-Version: 2.1
 Name: nanodrivers
-Version: 0.0.2
+Version: 0.0.3
 Summary: drivers for scientific microwave equipment
 Author: Ekaterina Mukhanova
 Author-email: ekaterina.mukhanova@aalto.fi
 Requires-Python: >=3.6
+Requires-Dist: nidaqmx
