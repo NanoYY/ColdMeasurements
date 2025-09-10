@@ -91,9 +91,8 @@ class VNA(v.BaseVisa):
             self.get_span()
             self.get_freq()
 
-        self.test = 0
         self.elength = nan
-        # self.get_elength()
+        self.get_elength()
 
         self.status_output = nan
         self.get_status()
@@ -418,7 +417,7 @@ class VNA(v.BaseVisa):
         Set frequency sweep in Hz with start-stop-number_of_points setup
         """
 
-        if start_cent < 100:
+        if cent_fr < 100:
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             start_cent = cent_fr * 1e9
         if span < 100:
@@ -479,8 +478,7 @@ class VNA(v.BaseVisa):
         """
         Full measurements in linear mode in cent-span regime
         """
-        self.set_freq_cent_span(cent_fr, span)
-        self.set_nop(nop)
+        self.set_freq_cent_span(cent_fr, span, nop)
         self.set_band(band)
         self.set_power(meas_power)
 

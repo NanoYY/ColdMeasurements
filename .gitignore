@@ -5,3 +5,17 @@
 /DeMag/Matlab Scripts/
 *.pyc
 /NanoY/Data/
+/NanoY/T1SNAIL.ipynb
+/NanoY/Test.ipynb
+/NanoY/Test.png
+/NanoY/Tosson.ipynb
+/NanoY/Scripts/.ipynb_checkpoints/
+/nanodrivers_backup/
+.gitignore
+/.idea/shelf/
+/DeMag/Scripts/Examples/.ipynb_checkpoints/
+/DeMag/Scripts/TWPA calibration/.ipynb_checkpoints/
+/FinCryo/Examples/.ipynb_checkpoints/
+/NANOdrivers/build/
+/NANOdrivers/nanodrivers.egg-info/
+/NanoY/.ipynb_checkpoints/
