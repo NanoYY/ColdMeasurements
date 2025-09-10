@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d86145b3-66c5-4022-8cba-0fe8f272f19f" name="Changes" comment="Nano drivers merge of NanoY to global version #2">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NANOdrivers/nanodrivers/visa_drivers/vna.py" beforeDir="false" afterPath="$PROJECT_DIR$/NANOdrivers/nanodrivers/visa_drivers/vna.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="2acd769addedc530d294f2df19088cc3294c960a" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;NanoYY&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/NanoYY/ColdMeasurements.git&quot;,
+    &quot;accountId&quot;: &quot;d8a5c612-cfae-4fa0-9961-0b4d41802710&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2obcHu3CyxBh7E2kFehO5xAvoix" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "selective-merge",
+    "last_opened_file_path": "F:/ColdMeasurements/NanoY/PrestoModifiedDrivers/JPA_photoemitter",
+    "settings.editor.selected.configurable": "vcs.Git"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers\JPA_photoemitter" />
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers\g20" />
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers\presto_mod\pulsed" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers\presto_mod\pulsed" />
+      <recent name="F:\ColdMeasurements\NanoY" />
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers_\presto_mod\pulsed" />
+      <recent name="F:\ColdMeasurements\NanoY\PrestoModifiedDrivers_" />
+      <recent name="F:\SaturdayCode\NanoY" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="ColdMeasurements" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-0e3be3396995-c546a90a8094-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.23339.19" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d86145b3-66c5-4022-8cba-0fe8f272f19f" name="Changes" comment="" />
+      <created>1731141631211</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1731141631211</updated>
+    </task>
+    <task id="LOCAL−00001" summary="Hi Markus">
+      <option name="closed" value="true" />
+      <created>1731142479820</created>
+      <option name="number" value="LOCAL−00001" />
+      <option name="presentableId" value="LOCAL−00001" />
+      <updated>1731142479820</updated>
+    </task>
+    <task id="LOCAL−00002" summary="Presto Modified Drivers created">
+      <option name="closed" value="true" />
+      <created>1731143026488</created>
+      <option name="number" value="LOCAL−00002" />
+      <option name="presentableId" value="LOCAL−00002" />
+      <updated>1731143026488</updated>
+    </task>
+    <task id="LOCAL−00003" summary="Presto Modified Drivers created">
+      <option name="closed" value="true" />
+      <created>1731143156044</created>
+      <option name="number" value="LOCAL−00003" />
+      <option name="presentableId" value="LOCAL−00003" />
+      <updated>1731143156044</updated>
+    </task>
+    <task id="LOCAL−00004" summary="Presto Modified Drivers created">
+      <option name="closed" value="true" />
+      <created>1731329467102</created>
+      <option name="number" value="LOCAL−00004" />
+      <option name="presentableId" value="LOCAL−00004" />
+      <updated>1731329467102</updated>
+    </task>
+    <task id="LOCAL−00005" summary="Presto Modified Drivers created">
+      <option name="closed" value="true" />
+      <created>1731334713899</created>
+      <option name="number" value="LOCAL−00005" />
+      <option name="presentableId" value="LOCAL−00005" />
+      <updated>1731334713899</updated>
+    </task>
+    <task id="LOCAL−00006" summary="Presto Modified Drivers created">
+      <option name="closed" value="true" />
+      <created>1731335064821</created>
+      <option name="number" value="LOCAL−00006" />
+      <option name="presentableId" value="LOCAL−00006" />
+      <updated>1731335064821</updated>
+    </task>
+    <task id="LOCAL−00007" summary="We made a surulinen oravat and some pulse measurement changes. We are very tired and about to go home to sleep. Thank you for your attention.">
+      <option name="closed" value="true" />
+      <created>1731338097778</created>
+      <option name="number" value="LOCAL−00007" />
+      <option name="presentableId" value="LOCAL−00007" />
+      <updated>1731338097778</updated>
+    </task>
+    <task id="LOCAL−00008" summary="We made a surulinen oravat and some pulse measurement changes. We are very tired and about to go home to sleep. Thank you for your attention.">
+      <option name="closed" value="true" />
+      <created>1731346107608</created>
+      <option name="number" value="LOCAL−00008" />
+      <option name="presentableId" value="LOCAL−00008" />
+      <updated>1731346107608</updated>
+    </task>
+    <task id="LOCAL−00009" summary="Some additional pulse measurement changes.">
+      <option name="closed" value="true" />
+      <created>1731422892492</created>
+      <option name="number" value="LOCAL−00009" />
+      <option name="presentableId" value="LOCAL−00009" />
+      <updated>1731422892492</updated>
+    </task>
+    <task id="LOCAL−00010" summary="Longer Gaussian pulse edge.">
+      <option name="closed" value="true" />
+      <created>1731424259038</created>
+      <option name="number" value="LOCAL−00010" />
+      <option name="presentableId" value="LOCAL−00010" />
+      <updated>1731424259038</updated>
+    </task>
+    <task id="LOCAL−00011" summary="Fixed readout frequency being same as LO.">
+      <option name="closed" value="true" />
+      <created>1731430021797</created>
+      <option name="number" value="LOCAL−00011" />
+      <option name="presentableId" value="LOCAL−00011" />
+      <updated>1731430021797</updated>
+    </task>
+    <task id="LOCAL−00012" summary="Fixed readout frequency being same as LO.">
+      <option name="closed" value="true" />
+      <created>1731430448031</created>
+      <option name="number" value="LOCAL−00012" />
+      <option name="presentableId" value="LOCAL−00012" />
+      <updated>1731430448032</updated>
+    </task>
+    <task id="LOCAL−00013" summary="Fixed readout frequency being same as LO.">
+      <option name="closed" value="true" />
+      <created>1731432081014</created>
+      <option name="number" value="LOCAL−00013" />
+      <option name="presentableId" value="LOCAL−00013" />
+      <updated>1731432081014</updated>
+    </task>
+    <task id="LOCAL−00014" summary="Still working to fix pulses........">
+      <option name="closed" value="true" />
+      <created>1731596986741</created>
+      <option name="number" value="LOCAL−00014" />
+      <option name="presentableId" value="LOCAL−00014" />
+      <updated>1731596986741</updated>
+    </task>
+    <task id="LOCAL−00015" summary="New file for T1correlation created. Pulse shape needs to be modified, a strange spike is visible">
+      <option name="closed" value="true" />
+      <created>1732637475138</created>
+      <option name="number" value="LOCAL−00015" />
+      <option name="presentableId" value="LOCAL−00015" />
+      <updated>1732637475138</updated>
+    </task>
+    <task id="LOCAL−00016" summary="Noise in presto itself">
+      <option name="closed" value="true" />
+      <created>1733140668580</created>
+      <option name="number" value="LOCAL−00016" />
+      <option name="presentableId" value="LOCAL−00016" />
+      <updated>1733140668580</updated>
+    </task>
+    <task id="LOCAL−00017" summary="DAC low-noise option">
+      <option name="closed" value="true" />
+      <created>1737097276159</created>
+      <option name="number" value="LOCAL−00017" />
+      <option name="presentableId" value="LOCAL−00017" />
+      <updated>1737097276160</updated>
+    </task>
+    <task id="LOCAL−00018" summary="Downsampling option for pulsed measurement.">
+      <option name="closed" value="true" />
+      <created>1737097558051</created>
+      <option name="number" value="LOCAL−00018" />
+      <option name="presentableId" value="LOCAL−00018" />
+      <updated>1737097558051</updated>
+    </task>
+    <task id="LOCAL−00019" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739607326654</created>
+      <option name="number" value="LOCAL−00019" />
+      <option name="presentableId" value="LOCAL−00019" />
+      <updated>1739607326654</updated>
+    </task>
+    <task id="LOCAL−00020" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739615095943</created>
+      <option name="number" value="LOCAL−00020" />
+      <option name="presentableId" value="LOCAL−00020" />
+      <updated>1739615095943</updated>
+    </task>
+    <task id="LOCAL−00021" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739615239472</created>
+      <option name="number" value="LOCAL−00021" />
+      <option name="presentableId" value="LOCAL−00021" />
+      <updated>1739615239472</updated>
+    </task>
+    <task id="LOCAL−00022" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739615355428</created>
+      <option name="number" value="LOCAL−00022" />
+      <option name="presentableId" value="LOCAL−00022" />
+      <updated>1739615355428</updated>
+    </task>
+    <task id="LOCAL−00023" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739615442685</created>
+      <option name="number" value="LOCAL−00023" />
+      <option name="presentableId" value="LOCAL−00023" />
+      <updated>1739615442685</updated>
+    </task>
+    <task id="LOCAL−00024" summary="Added function for Korotkov's measurement.">
+      <option name="closed" value="true" />
+      <created>1739615789477</created>
+      <option name="number" value="LOCAL−00024" />
+      <option name="presentableId" value="LOCAL−00024" />
+      <updated>1739615789477</updated>
+    </task>
+    <task id="LOCAL−00025" summary="Added probe phase to Korotkov measurement.">
+      <option name="closed" value="true" />
+      <created>1739616850025</created>
+      <option name="number" value="LOCAL−00025" />
+      <option name="presentableId" value="LOCAL−00025" />
+      <updated>1739616850025</updated>
+    </task>
+    <task id="LOCAL−00026" summary="Added probe phase to Korotkov measurement.">
+      <option name="closed" value="true" />
+      <created>1739617317385</created>
+      <option name="number" value="LOCAL−00026" />
+      <option name="presentableId" value="LOCAL−00026" />
+      <updated>1739617317385</updated>
+    </task>
+    <task id="LOCAL−00027" summary="Added probe phase to Korotkov measurement.">
+      <option name="closed" value="true" />
+      <created>1739617558462</created>
+      <option name="number" value="LOCAL−00027" />
+      <option name="presentableId" value="LOCAL−00027" />
+      <updated>1739617558462</updated>
+    </task>
+    <task id="LOCAL−00028" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1740755691103</created>
+      <option name="number" value="LOCAL−00028" />
+      <option name="presentableId" value="LOCAL−00028" />
+      <updated>1740755691103</updated>
+    </task>
+    <task id="LOCAL−00029" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1740759146174</created>
+      <option name="number" value="LOCAL−00029" />
+      <option name="presentableId" value="LOCAL−00029" />
+      <updated>1740759146174</updated>
+    </task>
+    <task id="LOCAL−00030" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1740759524268</created>
+      <option name="number" value="LOCAL−00030" />
+      <option name="presentableId" value="LOCAL−00030" />
+      <updated>1740759524268</updated>
+    </task>
+    <task id="LOCAL−00031" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1743508604861</created>
+      <option name="number" value="LOCAL−00031" />
+      <option name="presentableId" value="LOCAL−00031" />
+      <updated>1743508604861</updated>
+    </task>
+    <task id="LOCAL−00032" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1743509479354</created>
+      <option name="number" value="LOCAL−00032" />
+      <option name="presentableId" value="LOCAL−00032" />
+      <updated>1743509479354</updated>
+    </task>
+    <task id="LOCAL−00033" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1743510683117</created>
+      <option name="number" value="LOCAL−00033" />
+      <option name="presentableId" value="LOCAL−00033" />
+      <updated>1743510683117</updated>
+    </task>
+    <task id="LOCAL−00034" summary="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power.">
+      <option name="closed" value="true" />
+      <created>1743511345789</created>
+      <option name="number" value="LOCAL−00034" />
+      <option name="presentableId" value="LOCAL−00034" />
+      <updated>1743511345789</updated>
+    </task>
+    <task id="LOCAL−00035" summary="Added possiblity to change phase of probe pulse, fixed issue with 2\omega pumping and other small changes.">
+      <option name="closed" value="true" />
+      <created>1743511599912</created>
+      <option name="number" value="LOCAL−00035" />
+      <option name="presentableId" value="LOCAL−00035" />
+      <updated>1743511599912</updated>
+    </task>
+    <task id="LOCAL−00036" summary="Added possiblity to change phase of probe pulse, fixed issue with 2\omega pumping and other small changes.">
+      <option name="closed" value="true" />
+      <created>1745316573858</created>
+      <option name="number" value="LOCAL−00036" />
+      <option name="presentableId" value="LOCAL−00036" />
+      <updated>1745316573858</updated>
+    </task>
+    <task id="LOCAL−00037" summary="Added possiblity to change phase of probe pulse, fixed issue with 2\omega pumping and other small changes.">
+      <option name="closed" value="true" />
+      <created>1745318214721</created>
+      <option name="number" value="LOCAL−00037" />
+      <option name="presentableId" value="LOCAL−00037" />
+      <updated>1745318214721</updated>
+    </task>
+    <task id="LOCAL−00038" summary="Added HC port for more complicated measurement.">
+      <option name="closed" value="true" />
+      <created>1745850914222</created>
+      <option name="number" value="LOCAL−00038" />
+      <option name="presentableId" value="LOCAL−00038" />
+      <updated>1745850914222</updated>
+    </task>
+    <task id="LOCAL−00039" summary="2 Photon splitting">
+      <option name="closed" value="true" />
+      <created>1746176346618</created>
+      <option name="number" value="LOCAL−00039" />
+      <option name="presentableId" value="LOCAL−00039" />
+      <updated>1746176346618</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Nano drivers merge of NanoY to global version">
+      <option name="closed" value="true" />
+      <created>1757497110811</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1757497110811</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Nano drivers merge of NanoY to global version">
+      <option name="closed" value="true" />
+      <created>1757497117437</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1757497117437</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Nano drivers merge of NanoY to global version #2">
+      <option name="closed" value="true" />
+      <created>1757512659109</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1757512659109</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Hi Markus" />
+    <MESSAGE value="Presto Modified Drivers created" />
+    <MESSAGE value="We made a surulinen oravat and some pulse measurement changes. We are very tired and about to go home to sleep. Thank you for your attention." />
+    <MESSAGE value="Some additional pulse measurement changes." />
+    <MESSAGE value="Longer Gaussian pulse edge." />
+    <MESSAGE value="Fixed readout frequency being same as LO." />
+    <MESSAGE value="Still working to fix pulses........" />
+    <MESSAGE value="New file for T1correlation created. Pulse shape needs to be modified, a strange spike is visible" />
+    <MESSAGE value="Noise in presto itself" />
+    <MESSAGE value="Added control for NCO phase + other modifications." />
+    <MESSAGE value="DAC low-noise option" />
+    <MESSAGE value="Downsampling option for pulsed measurement." />
+    <MESSAGE value="Added function for Korotkov's measurement." />
+    <MESSAGE value="Added probe phase to Korotkov measurement." />
+    <MESSAGE value="Added function for photon splitting with the hybrid coupler. Includes updates to two_tone_power." />
+    <MESSAGE value="Added possiblity to change phase of probe pulse, fixed issue with 2\omega pumping and other small changes." />
+    <MESSAGE value="Added HC port for more complicated measurement." />
+    <MESSAGE value="2 Photon splitting" />
+    <MESSAGE value="Nano drivers merge of NanoY to global version" />
+    <MESSAGE value="Nano drivers merge of NanoY to global version #2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Nano drivers merge of NanoY to global version #2" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/AppData/Roaming/Python/Python311/site-packages/nanodrivers/visa_drivers/__init__.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

@@ -7,6 +7,7 @@ import time
 
 import nanodrivers.visa_drivers.visa_dev as v
 import nanodrivers.visa_drivers.global_settings as gs
+from datetime import datetime, timedelta
 
 
 global_vna_address = gs.vna_address
@@ -90,9 +91,8 @@ class VNA(v.BaseVisa):
             self.get_span()
             self.get_freq()
 
-        self.test = 0
         self.elength = nan
-        # self.get_elength()
+        self.get_elength()
 
         self.status_output = nan
         self.get_status()
@@ -192,12 +192,16 @@ class VNA(v.BaseVisa):
         Returns: data in specified form
 
         """
-
         self.set_on()
         self.write("INIT1:IMM")
-        time.sleep(0.2 + self.get_sweep_time())
+        sweep_time = self.get_sweep_time()
+        now2 = datetime.now()
+        print(now2, '+', sweep_time/60, 'min')
+        time.sleep(0.4 + sweep_time)
+
         data_str = self.query("CALC1:DATA? SDAT")
         data = np.array(data_str.rstrip().split(",")).astype("float64")
+
         s = data[0::2] + 1j * data[1::2]
         self.set_off()
 
@@ -413,7 +417,7 @@ class VNA(v.BaseVisa):
         Set frequency sweep in Hz with start-stop-number_of_points setup
         """
 
-        if start_cent < 100:
+        if cent_fr < 100:
             print("Warning: probably frequency range is GHz, but Hz needed. Frequency will be converted to Hz")
             start_cent = cent_fr * 1e9
         if span < 100:
@@ -474,8 +478,7 @@ class VNA(v.BaseVisa):
         """
         Full measurements in linear mode in cent-span regime
         """
-        self.set_freq_cent_span(cent_fr, span)
-        self.set_nop(nop)
+        self.set_freq_cent_span(cent_fr, span, nop)
         self.set_band(band)
         self.set_power(meas_power)
 
