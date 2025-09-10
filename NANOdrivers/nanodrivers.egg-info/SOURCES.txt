@@ -3,6 +3,7 @@ nanodrivers/__init__.py
 nanodrivers.egg-info/PKG-INFO
 nanodrivers.egg-info/SOURCES.txt
 nanodrivers.egg-info/dependency_links.txt
+nanodrivers.egg-info/requires.txt
 nanodrivers.egg-info/top_level.txt
 nanodrivers/LakeShore370/LS_370_GPIB.py
 nanodrivers/LakeShore370/__init__.py

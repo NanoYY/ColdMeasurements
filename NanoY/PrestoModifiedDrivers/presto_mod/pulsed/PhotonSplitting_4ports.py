@@ -69,7 +69,7 @@ def Gauss(nr_samples, drag, edge=100, sig_left=10, sig_right=10):
     return Left + Middle + Right
 
 
-def sin2_env(nr_samples: int, drag: float = 0.0) -> np.ndarray:
+def sin2(nr_samples: int, drag: float = 0.0) -> np.ndarray:
     x = np.linspace(0.0, 1.0, nr_samples, endpoint=False)
     return np.sin(np.pi * x) ** 2
 
@@ -79,31 +79,40 @@ class PhotonSplitting(Base):
         LO_port: int,
         IF_port: int,
         PR_port: int,
+        HC_port: int,
         readout_port1: int,
         readout_port2: int,
+        readout_port3: int,
+        readout_port4: int,
 
         LO_freq: float,
         IF_freq: float,
         PR_freq: float,
-        readout_freq: float,
+        HC_freq: int,
+        readout_freq1: float,
+        readout_freq2: float,
+        readout_freq3: float,
+        readout_freq4: float,
 
         readout_phase: float,
         probe_phase: float,
+        HC_phase: float,
         downsampling: int,
 
         LO_amp: float,
         IF_amp: float,
         PR_amp: float,
+        HC_amp: int,
 
         LO_duration: float,
         IF_duration: float,
         PR_duration: float,
+        HC_duration: float,
         readout_duration: float,
 
         delay: float,
         wait_delay: float,
         readout_delay: float,
-        pulse_delay: float,
 
         pulse_repeats: int,
         num_repeats: int,
@@ -118,35 +127,45 @@ class PhotonSplitting(Base):
         file_name = 'Pulse_test',
 
 
+
     ) -> None:
         self.LO_port = LO_port
         self.IF_port = IF_port
         self.PR_port = PR_port
+        self.HC_port = HC_port
         self.readout_port1 = readout_port1
         self.readout_port2 = readout_port2
+        self.readout_port3 = readout_port3
+        self.readout_port4 = readout_port4
 
         self.LO_freq = LO_freq
         self.IF_freq = IF_freq
         self.PR_freq = PR_freq
-        self.readout_freq = readout_freq
+        self.HC_freq = HC_freq
+        self.readout_freq1 = readout_freq1
+        self.readout_freq2 = readout_freq2
+        self.readout_freq3 = readout_freq3
+        self.readout_freq4 = readout_freq4
 
         self.readout_phase = readout_phase
         self.probe_phase = probe_phase
+        self.HC_phase = HC_phase
         self.downsampling = downsampling
 
         self.LO_amp = LO_amp
         self.IF_amp = IF_amp
         self.PR_amp = PR_amp
+        self.HC_amp = HC_amp
 
         self.LO_duration = LO_duration
         self.IF_duration = IF_duration
         self.PR_duration = PR_duration
+        self.HC_duration = HC_duration
         self.readout_duration = readout_duration
 
         self.delay =  np.atleast_1d(delay).astype(np.float64)              # if a single float is passed,
         self.wait_delay = np.atleast_1d(wait_delay).astype(np.float64)     # it's converted into a single-element array
         self.readout_delay = np.atleast_1d(readout_delay).astype(np.float64)
-        self.pulse_delay = np.atleast_1d(pulse_delay).astype(np.float64)
 
         self.pulse_repeats = pulse_repeats
         self.num_repeats = num_repeats
@@ -166,21 +185,27 @@ class PhotonSplitting(Base):
         num_samples_LO = int(round(self.LO_duration * dac_sampling_rate))
         num_samples_IF = int(round(self.IF_duration * dac_sampling_rate))
         num_samples_PR = int(round(self.PR_duration * dac_sampling_rate))
+        num_samples_HC = int(round(self.HC_duration * dac_sampling_rate))
 
         if envelope_function is not None:
             self.LO_envelope_function = envelope_function(num_samples_LO, self.drag)
         else:
-            self.LO_envelope_function = sin2_env(num_samples_LO, self.drag)
+            self.LO_envelope_function = sin2(num_samples_LO, self.drag)
 
         if envelope_function is not None:
             self.IF_envelope_function = envelope_function(num_samples_IF, self.drag)
         else:
-            self.IF_envelope_function = sin2_env(num_samples_IF, self.drag)
+            self.IF_envelope_function = sin2(num_samples_IF, self.drag)
 
         if envelope_function is not None:
             self.PR_envelope_function = envelope_function(num_samples_PR, self.drag)
         else:
-            self.PR_envelope_function = sin2_env(num_samples_PR, self.drag)
+            self.PR_envelope_function = sin2(num_samples_PR, self.drag)
+
+        if envelope_function is not None:
+            self.HC_envelope_function = envelope_function(num_samples_HC, self.drag)
+        else:
+            self.HC_envelope_function = sin2(num_samples_HC, self.drag)
 
 
     # @staticmethod
@@ -206,16 +231,35 @@ class PhotonSplitting(Base):
 
             pls.hardware.set_adc_attenuation(self.readout_port1, 0.0)  # readout signal goes to here
             pls.hardware.set_adc_attenuation(self.readout_port2, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.readout_port3, 0.0)  # readout signal goes to here
+            pls.hardware.set_adc_attenuation(self.readout_port4, 0.0)  # readout signal goes to here
             pls.hardware.set_dac_current(self.LO_port, DAC_CURRENT)       # readout signal goes from here
             pls.hardware.set_dac_current(self.IF_port, DAC_CURRENT)       # control of sample / pump port
-            pls.hardware.set_dac_current(self.PR_port, DAC_CURRENT)  # control of sample / pump port
+            pls.hardware.set_dac_current(self.PR_port, DAC_CURRENT)       # control of sample / pump port
+            pls.hardware.set_dac_current(self.HC_port, DAC_CURRENT)       # Hybrid coupler
             pls.hardware.set_inv_sinc(self.LO_port, 2)              # compensate the bandwidth limitations introduced by DAC
             pls.hardware.set_inv_sinc(self.IF_port, 2)
             pls.hardware.set_inv_sinc(self.PR_port, 2)
-            pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port], low_noise=True)
+            pls.hardware.set_inv_sinc(self.HC_port, 2)
+            pls.hardware.set_dac_lownoise([self.LO_port,self.IF_port,self.PR_port,self.HC_port], low_noise=True)
             pls.hardware.configure_mixer(
-                freq=self.readout_freq,
-                in_ports=[self.readout_port1, self.readout_port2],
+                freq=self.readout_freq1,
+                in_ports=self.readout_port1,
+                in_phase=self.readout_phase,
+            )
+            pls.hardware.configure_mixer(
+                freq=self.readout_freq2,
+                in_ports=[self.readout_port2],
+                in_phase=self.readout_phase,
+            )
+            pls.hardware.configure_mixer(
+                freq=self.readout_freq3,
+                in_ports=self.readout_port3,
+                in_phase=self.readout_phase,
+            )
+            pls.hardware.configure_mixer(
+                freq=self.readout_freq4,
+                in_ports=self.readout_port4,
                 in_phase=self.readout_phase,
             )
             pls.hardware.configure_mixer(
@@ -231,6 +275,11 @@ class PhotonSplitting(Base):
             pls.hardware.configure_mixer(
                 freq=self.IF_freq,
                 out_ports=self.IF_port,
+                sync=True,
+            )
+            pls.hardware.configure_mixer(
+                freq=self.HC_freq,
+                out_ports=self.HC_port,
                 sync=True,
             )
 
@@ -261,6 +310,13 @@ class PhotonSplitting(Base):
                 phases=0.0,
                 phases_q=0.0,
             )
+            pls.setup_freq_lut(
+                output_ports=self.HC_port,
+                group=0,
+                frequencies=0.0,
+                phases=0.0,
+                phases_q=0.0,
+            )
 
             # Setup lookup tables for amplitudes
             pls.setup_scale_lut(
@@ -277,6 +333,11 @@ class PhotonSplitting(Base):
                 output_ports=self.PR_port,
                 group=0,
                 scales=self.PR_amp,
+            )
+            pls.setup_scale_lut(
+                output_ports=self.HC_port,
+                group=0,
+                scales=self.HC_amp,
             )
 
             # Setup readout and control pulses
@@ -317,6 +378,19 @@ class PhotonSplitting(Base):
                 fall_time=0e-9,
             )
 
+            HC_amp_I = np.round(np.real(np.exp(1j * np.round(self.HC_phase,3))),5)
+            HC_amp_Q = np.round(np.imag(np.exp(1j * np.round(self.HC_phase,3))),5)
+
+            HC_pulse = pls.setup_long_drive(
+                output_port=self.HC_port,
+                group=0,
+                duration=self.HC_duration,
+                amplitude=HC_amp_I,
+                amplitude_q=HC_amp_Q,
+                rise_time=0e-9*self.downsampling,
+                fall_time=0e-9*self.downsampling,
+            )
+
             # IF_pulse = pls.setup_template(
             #     output_port=self.IF_port,
             #     group=0,
@@ -342,12 +416,12 @@ class PhotonSplitting(Base):
                 duration=self.PR_duration,
                 amplitude=PR_amp_I,
                 amplitude_q=PR_amp_Q,
-                rise_time=8e-9,
-                fall_time=8e-9,
+                rise_time=0e-9*self.downsampling,
+                fall_time=0e-9*self.downsampling,
             )
 
             # Setup sampling window
-            pls.set_store_ports([self.readout_port1, self.readout_port2])
+            pls.set_store_ports([self.readout_port1, self.readout_port2, self.readout_port3, self.readout_port4])
             pls.set_store_duration(self.readout_duration)
 
             # ******************************
@@ -360,28 +434,24 @@ class PhotonSplitting(Base):
 
             pls.store(T + self.readout_delay)
 
-            pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
-            pls.output_pulse(T, LO_pulse)
+            # for i in range(self.pulse_repeats):
+            pls.reset_phase(T, self.HC_port)  # set phase to 0 at given time
+            pls.output_pulse(T, HC_pulse)
             T += self.delay
 
+            # pls.reset_phase(T, self.LO_port)  # set phase to 0 at given time
+            # pls.output_pulse(T, LO_pulse)
+            # T += self.delay
+            # #
+            # pls.reset_phase(T, self.IF_port)
+            # pls.output_pulse(T, IF_pulse)
+            # T += self.delay
 
+            pls.reset_phase(T, self.PR_port)
+            pls.output_pulse(T, PR_pulse)
+            T += self.delay
 
-            # for i in range(self.pulse_repeats):
-            pls.reset_phase(T, self.IF_port)
-            pls.reset_phase(T, self.PR_port)  # set phase to 0 at given time
-
-            pls.output_pulse(T, IF_pulse)
-
-            if self.pulse_delay>0:
-                pls.output_pulse(T, IF_pulse)
-                T += self.pulse_delay
-                pls.output_pulse(T, PR_pulse)
-                T -= self.pulse_delay
-            else:
-                T += self.pulse_delay
-                pls.output_pulse(T, PR_pulse)
-                T -= self.pulse_delay
-                pls.output_pulse(T, IF_pulse)
+            T += self.PR_duration - self.delay
 
 
             #
