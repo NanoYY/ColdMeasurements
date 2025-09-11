@@ -29,6 +29,7 @@ class BaseVisa:
 
         """
         device = self.device
+        # print(cmd_str)
         try:
             device.write(cmd_str)
         except pyvisa.VisaIOError as e:

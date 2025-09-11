@@ -1,0 +1,704 @@
+Index: NANOdrivers/nanodrivers/visa_drivers/anapico.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from numpy import *\r\nimport nanodrivers.visa_drivers.visa_dev as v\r\nimport nanodrivers.visa_drivers.global_settings as gs\r\n\r\nglobal_anapico_address = gs.anapico_address\r\n\r\n\r\nclass ANAPICO(v.BaseVisa):\r\n    \"\"\"Class for AnaPico Signal Generator operation.\r\n     Args:\r\n         device_num:\r\n             GPIB num (float) or full device address (string)\r\n     \"\"\"\r\n    def __init__(self, device_num=global_anapico_address):\r\n        super().__init__(device_num)  # initialise device with the init of parent class VisaDevice\r\n        self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds\r\n\r\n    def on(self, channel):\r\n        \"\"\"\r\n        Function to turn on channel\r\n        Args:\r\n            channel: channel number [1..4]\r\n\r\n        Returns: None\r\n\r\n        \"\"\"\r\n        command = r'OUTP{} ON'.format(str(channel))\r\n        self.write(command)\r\n\r\n    def off(self, channel):\r\n        command = r'OUTP{} OFF'.format(str(channel))\r\n        self.write(command)\r\n\r\n    def set_power(self, channel, power):\r\n        command = r'SOUR{}:POW {}'.format(str(channel), str(power))\r\n        self.write(command)\r\n\r\n    def set_freq(self, channel, frequency):\r\n        ''' Function to set frequency\r\n\r\n        Args:\r\n            channel: output channel\r\n            frequency: output frequency in Hz\r\n\r\n        Returns: None\r\n\r\n        '''\r\n        command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))\r\n        self.write(command)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/anapico.py b/NANOdrivers/nanodrivers/visa_drivers/anapico.py
+--- a/NANOdrivers/nanodrivers/visa_drivers/anapico.py	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
++++ b/NANOdrivers/nanodrivers/visa_drivers/anapico.py	(date 1727096959048)
+@@ -1,49 +1,194 @@
+ from numpy import *
++import numpy as np
+ import nanodrivers.visa_drivers.visa_dev as v
+ import nanodrivers.visa_drivers.global_settings as gs
++import pyvisa
++
+ 
+ global_anapico_address = gs.anapico_address
+ 
+ 
++def get_class_attributes(print_it=False):
++    """
++    Function returns all class attributes
++
++    Returns: list of all variables globally defined within class
++
++    """
++    list_of_att = dict()
++    for attribute in ANAPICO.__dict__.keys():
++        if attribute[:2] != '__':
++            value = getattr(ANAPICO, attribute)
++            if not callable(value):
++                list_of_att[attribute] = value
++                if print_it:
++                    print(attribute, '=', value)
++
++    return list_of_att
++
++
+ class ANAPICO(v.BaseVisa):
+-    """Class for AnaPico Signal Generator operation.
++    """Class for AnaPico Signal Generator operation. In case the connection can't be established, try each option
++     and check if connection restored:
++    1. Restart kernel.
++    2. In NI MAX delete device and reconnect
++    3. In device manager restart TP-Link USB adapter
++    4. Restart anapico
+      Args:
+          device_num:
+              GPIB num (float) or full device address (string)
++
+      """
+     def __init__(self, device_num=global_anapico_address):
+         super().__init__(device_num)  # initialise device with the init of parent class VisaDevice
+         self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
+ 
+-    def on(self, channel):
++        self.channel_status = np.array([nan, nan, nan, nan])
++        self.channel_freqs = np.array([nan, nan, nan, nan])
++        self.channel_pows = np.array([nan, nan, nan, nan])
++
++        for i in [1, 2, 3, 4]:
++            self.get_status(i)
++            self.get_freq(i)
++            self.get_power(i)
++
++    def dump(self, print_it=False):
++        """
++        Function returns all pre-defined class attributes
++        (all variables used in the code with the latest value read)
++
++        Returns: list of all variables defined in class __init__
++
++        """
++        for i in [1, 2, 3, 4]:
++            self.get_status(i)
++            self.get_freq(i)
++            self.get_power(i)
++
++        list_of_att = dict()
++        for attribute, value in self.__dict__.items():
++            list_of_att[attribute] = value
++            if print_it:
++                print(attribute, '=', value)
++            if type(value) == pyvisa.resources.tcpip.TCPIPInstrument:
++                list_of_att[attribute] = str(value)
++        return list_of_att
++
++    def get_status(self, channel):
++        """
++        Function to get status of each channel.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: [1, 2, 3, 4]
++
++        Returns: 1 - on, 0 - off
++
++        """
++        channel_py = channel-1
++        self.channel_status[channel_py] = self.query('OUTPut{}:STATe?'.format(str(channel)))
++        return self.channel_status[channel_py]
++
++    def get_freq(self, channel):
++        """
++        Function to get frequency of each channel.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: [1..4]
++
++        Returns: freq in Hz
++
++        """
++        channel_py = channel - 1
++        self.channel_freqs[channel_py] = self.query('SOUR{}:FREQ?'.format(str(channel)))
++        return self.channel_freqs[channel_py]
++
++    def get_power(self, channel):
++        """
++        Function to get power of each channel.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: [1..4]
++
++        Returns: power in dbm
++
+         """
+-        Function to turn on channel
++        channel_py = channel - 1
++        self.channel_pows[channel_py] = self.query('SOUR{}:POW?'.format(str(channel)))
++        return self.channel_pows[channel_py]
++
++    def set_on(self, channel):
++        """
++        Function to turn ON channel output power.
++        Note: channels on the device starts from 1!
+         Args:
+             channel: channel number [1..4]
+ 
+         Returns: None
+ 
+         """
++        channel_py = channel - 1
+         command = r'OUTP{} ON'.format(str(channel))
+         self.write(command)
++        self.channel_status[channel_py] = 1
++
++    def set_off(self, channel):
++        """
++        Function to turn OFF channel output power.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: channel number [1..4]
++
++        Returns: None
++
++        """
++        channel_py = channel - 1
++        command = r'OUTP{} OFF'.format(str(channel))
++        self.write(command)
++        self.channel_status[channel_py] = 0
++
++    def set_all_off(self):
++        """
++        Function to turn OFF all channels.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: channel number [1..4]
+ 
+-    def off(self, channel):
+-        command = r'OUTP{} OFF'.format(str(channel))
+-        self.write(command)
++        Returns: None
++
++        """
++        for channel_py in [1,2,3,4]:
++            command = r'OUTP{} OFF'.format(str(channel))
++            self.write(command)
++            self.channel_status[channel_py] = 0
++
++    def set_power(self, channel, ch_power):
++        """
++        Function to set output power.
++        Note: channels on the device starts from 1!
++        Args:
++            channel: output channel
++            ch_power: output power in dbm
+ 
+-    def set_power(self, channel, power):
+-        command = r'SOUR{}:POW {}'.format(str(channel), str(power))
++        Returns: None
++
++        """
++        channel_py = channel - 1
++        command = r'SOUR{}:POW {}'.format(str(channel), str(ch_power))
+         self.write(command)
++        self.channel_pows[channel_py] = ch_power
+ 
+     def set_freq(self, channel, frequency):
+-        ''' Function to set frequency
+-
++        """
++        Function to set frequency.
++        Note: channels on the device starts from 1!
+         Args:
+             channel: output channel
+             frequency: output frequency in Hz
+ 
+         Returns: None
+ 
+-        '''
++        """
++        channel_py = channel - 1
+         command = r'SOUR{}:FREQ {}'.format(str(channel), str(frequency))
+         self.write(command)
++        self.channel_freqs[channel_py] = frequency
+Index: NANOdrivers/nanodrivers/visa_drivers/Locking.py
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/Locking.py b/NANOdrivers/nanodrivers/visa_drivers/Locking.py
+deleted file mode 100644
+--- a/NANOdrivers/nanodrivers/visa_drivers/Locking.py	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
++++ /dev/null	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
+@@ -1,107 +0,0 @@
+-import numpy as np
+-from numpy import *
+-import os
+-from ctypes import *
+-
+-import nanodrivers.visa_drivers.visa_dev as v
+-import nanodrivers.visa_drivers.global_settings as gs
+-
+-global_loking_address = gs.loking_address
+-class LOCKING(v.BaseVisa):
+-    """Class for Stanford_Research_Systems, SR844, Lock-In Amplifier
+-
+-    Args:
+-        device_num:
+-            GPIB num (float) or full device address (string)
+-
+-    """
+-
+-    def __int__(self, device_num=global_loking_address):
+-        super().__int__(device_num)
+-
+-
+-    def clear(self):
+-        return self.write('*CLS')
+-
+-
+-    def get_sensitivity(self):
+-        return self.query_float('SENS ?')
+-
+-    def set_sensitivity(self, s):
+-        """ Function to set sensitivity of Loking input
+-
+-        Args:
+-            s: sensitivity, needs to be selected from table
+-                0: 100 nVrms / -127 dBm
+-                1: 300 nVrms / -117 dBm
+-                2: 1 μVrms / -107 dBm
+-                3: 3 μVrms / -97 dBm
+-                4: 10 μVrms / -87 dBm
+-                5: 30 μVrms / -77 dBm
+-                6: 100 μVrms / -67 dBm
+-                7: 300 μVrms / -57 dBm
+-                8: 1 mVrms / -47 dBm
+-                9: 3 mVrms / -37 dBm
+-                10: 10 mVrms / -27 dBm
+-                11: 30 mVrms / -17 dBm
+-                12: 100 mVrms / -7 dBm
+-                13: 300 mVrms / +3 dBm
+-                14: 1 Vrms / +13 dBm
+-
+-        Returns: info line about current sensitivity
+-
+-        """
+-        sensitivity_options = [
+-            '0: 100 nVrms / -127 dBm',
+-            '1: 300 nVrms / -117 dBm',
+-            '2: 1 μVrms / -107 dBm',
+-            '3: 3 μVrms / -97 dBm',
+-            '4: 10 μVrms / -87 dBm',
+-            '5: 30 μVrms / -77 dBm',
+-            '6: 100 μVrms / -67 dBm',
+-            '7: 300 μVrms / -57 dBm',
+-            '8: 1 mVrms / -47 dBm',
+-            '9: 3 mVrms / -37 dBm',
+-            '10: 10 mVrms / -27 dBm',
+-            '11: 30 mVrms / -17 dBm',
+-            '12: 100 mVrms / -7 dBm',
+-            '13: 300 mVrms / +3 dBm',
+-            '14: 1 Vrms / +13 dBm']
+-        self.query_float('SENS {}'.format(str(s)))
+-        return sensitivity_options[s]
+-
+-    def set_auto_sens(self):
+-        '''
+-
+-        Returns: Not really reliable. Sets too sensitive rate. Not recommended to use
+-
+-        '''
+-        return self.write('AGAN')
+-
+-    def get_phase(self):
+-        return self.query_float('PHAS ?')
+-
+-    def get_ref_impedance(self):
+-        imp = self.query_int('REFZ ?')
+-        if imp == 0: return '50 Ohm'
+-        if imp == 1: return '1 MOhm '
+-
+-    def get_input_impedance(self):
+-        imp = self.query_int('INPZ ?')
+-        if imp == 0: return '50 Ohm'
+-        if imp == 1: return '1 MOhm '
+-
+-    def get_time_const(self):
+-        tconst = self.query_int('OFLT ?')
+-        if tconst == 0: return '100 mus'
+-        if tconst == 17: return '30 ks'
+-        else: return tconst
+-
+-    def get_X_data(self):
+-        return self.query_float('OUTP?1')
+-
+-    def get_Y_data(self):
+-        return self.query_float('OUTP?2')
+-
+-    def set_phase(self, pha):
+-        return self.write('PHAS {}'.format(pha))
+\ No newline at end of file
+Index: NANOdrivers/nanodrivers/visa_drivers/global_settings.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\r\n\"\"\"Contain all static address of devices\r\n    Args:\r\n        anapico_address:\r\n            supports LAN and USB\r\n        vna_address:\r\n            supports LAN and GPIB\r\n        dc_source_address:\r\n            supports GPIB\r\n\r\n        anapico_address = 'TCPIP0::169.254.5.91::18::SOCKET'\"\r\n\"\"\"\r\n\r\nanapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'\r\n\r\n# vna_address = 'GPIB0::20::INSTR'\r\nvna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'\r\n\r\ndc_source_address = 'GPIB0::26::INSTR'\r\n\r\nloking_address = 'GPIB0::30::INSTR'\r\n\r\ndin_SA_address = 'GPIB0::10::INSTR'\r\n\r\n\r\nawg_address = 'GPIB0::13::INSTR'\r\n\r\nsa_address = 'GPIB0::18::INSTR'\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/global_settings.py b/NANOdrivers/nanodrivers/visa_drivers/global_settings.py
+--- a/NANOdrivers/nanodrivers/visa_drivers/global_settings.py	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
++++ b/NANOdrivers/nanodrivers/visa_drivers/global_settings.py	(date 1727181702151)
+@@ -11,7 +11,7 @@
+         anapico_address = 'TCPIP0::169.254.5.91::18::SOCKET'"
+ """
+ 
+-anapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'
++anapico_address = 'TCPIP0::169.254.12.34::inst0::INSTR'
+ 
+ # vna_address = 'GPIB0::20::INSTR'
+ vna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'
+Index: DeMag/Scripts/Examples/test_nanodrivers.ipynb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n \"cells\": [\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": 1,\r\n   \"id\": \"f171eee7\",\r\n   \"metadata\": {},\r\n   \"outputs\": [],\r\n   \"source\": [\r\n    \"from nanodrivers.visa_drivers.dc import DC\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": 2,\r\n   \"id\": \"5f493992\",\r\n   \"metadata\": {},\r\n   \"outputs\": [\r\n    {\r\n     \"name\": \"stdout\",\r\n     \"output_type\": \"stream\",\r\n     \"text\": [\r\n      \"Connection exist: HEWLETT-PACKARD,33120A,0,7.0-5.0-1.0\\n\",\r\n      \"\\n\"\r\n     ]\r\n    }\r\n   ],\r\n   \"source\": [\r\n    \"dc = DC()\\n\",\r\n    \"dc.idn()\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": 3,\r\n   \"id\": \"3b9296a9\",\r\n   \"metadata\": {},\r\n   \"outputs\": [\r\n    {\r\n     \"data\": {\r\n      \"text/plain\": [\r\n       \"'HEWLETT-PACKARD,33120A,0,7.0-5.0-1.0\\\\n'\"\r\n      ]\r\n     },\r\n     \"execution_count\": 3,\r\n     \"metadata\": {},\r\n     \"output_type\": \"execute_result\"\r\n    }\r\n   ],\r\n   \"source\": [\r\n    \"dc.query_str('*IDN?')\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": 4,\r\n   \"id\": \"9064f696\",\r\n   \"metadata\": {},\r\n   \"outputs\": [\r\n    {\r\n     \"name\": \"stdout\",\r\n     \"output_type\": \"stream\",\r\n     \"text\": [\r\n      \"Connection exist: HEWLETT-PACKARD,33120A,0,7.0-5.0-1.0\\n\",\r\n      \"\\n\"\r\n     ]\r\n    }\r\n   ],\r\n   \"source\": [\r\n    \"dc.idn()\"\r\n   ]\r\n  },\r\n  {\r\n   \"cell_type\": \"code\",\r\n   \"execution_count\": null,\r\n   \"id\": \"54774e7f\",\r\n   \"metadata\": {},\r\n   \"outputs\": [],\r\n   \"source\": []\r\n  }\r\n ],\r\n \"metadata\": {\r\n  \"kernelspec\": {\r\n   \"display_name\": \"Python 3 (ipykernel)\",\r\n   \"language\": \"python\",\r\n   \"name\": \"python3\"\r\n  },\r\n  \"language_info\": {\r\n   \"codemirror_mode\": {\r\n    \"name\": \"ipython\",\r\n    \"version\": 3\r\n   },\r\n   \"file_extension\": \".py\",\r\n   \"mimetype\": \"text/x-python\",\r\n   \"name\": \"python\",\r\n   \"nbconvert_exporter\": \"python\",\r\n   \"pygments_lexer\": \"ipython3\",\r\n   \"version\": \"3.9.12\"\r\n  }\r\n },\r\n \"nbformat\": 4,\r\n \"nbformat_minor\": 5\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/DeMag/Scripts/Examples/test_nanodrivers.ipynb b/DeMag/Scripts/Examples/test_nanodrivers.ipynb
+--- a/DeMag/Scripts/Examples/test_nanodrivers.ipynb	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
++++ b/DeMag/Scripts/Examples/test_nanodrivers.ipynb	(date 1727455584900)
+@@ -7,7 +7,9 @@
+    "metadata": {},
+    "outputs": [],
+    "source": [
+-    "from nanodrivers.visa_drivers.dc import DC"
++    "from nanodrivers.visa_drivers.dc import DC\n",
++    "\n",
++    "from nanodrivers.visa_drivers.lockin import LOCKIN"
+    ]
+   },
+   {
+@@ -32,48 +34,49 @@
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 3,
++   "execution_count": null,
+    "id": "3b9296a9",
+    "metadata": {},
+-   "outputs": [
+-    {
+-     "data": {
+-      "text/plain": [
+-       "'HEWLETT-PACKARD,33120A,0,7.0-5.0-1.0\\n'"
+-      ]
+-     },
+-     "execution_count": 3,
+-     "metadata": {},
+-     "output_type": "execute_result"
+-    }
+-   ],
++   "outputs": [],
+    "source": [
+     "dc.query_str('*IDN?')"
+    ]
+   },
+   {
+    "cell_type": "code",
+-   "execution_count": 4,
++   "execution_count": null,
+    "id": "9064f696",
++   "metadata": {},
++   "outputs": [],
++   "source": [
++    "dc.idn()"
++   ]
++  },
++  {
++   "cell_type": "code",
++   "execution_count": 3,
++   "id": "54774e7f",
+    "metadata": {},
+    "outputs": [
+     {
+      "name": "stdout",
+      "output_type": "stream",
+      "text": [
+-      "Connection exist: HEWLETT-PACKARD,33120A,0,7.0-5.0-1.0\n",
+-      "\n"
++      "['C:\\\\Users\\\\Demag\\\\anaconda3', 'C:\\\\Users\\\\Demag\\\\anaconda3\\\\Library\\\\mingw-w64\\\\bin', 'C:\\\\Users\\\\Demag\\\\anaconda3\\\\Library\\\\usr\\\\bin', 'C:\\\\Users\\\\Demag\\\\anaconda3\\\\Library\\\\bin', 'C:\\\\Users\\\\Demag\\\\anaconda3\\\\Scripts', 'C:\\\\Program Files\\\\National Instruments\\\\Shared\\\\OpenVINO\\\\', 'C:\\\\WINDOWS\\\\system32', 'C:\\\\WINDOWS', 'C:\\\\WINDOWS\\\\System32\\\\Wbem', 'C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\', 'C:\\\\WINDOWS\\\\System32\\\\OpenSSH\\\\', 'C:\\\\Program Files\\\\MATLAB\\\\R2022a\\\\runtime\\\\win64', 'C:\\\\Program Files\\\\MATLAB\\\\R2022a\\\\bin', 'C:\\\\Program Files\\\\Keysight\\\\IO Libraries Suite\\\\bin', 'C:\\\\Program Files\\\\IVI Foundation\\\\VISA\\\\Win64\\\\ktvisa', 'C:\\\\Program Files\\\\IVI Foundation\\\\VISA\\\\Win64\\\\bin', 'C:\\\\Program Files (x86)\\\\Keysight\\\\IO Libraries Suite\\\\bin', 'C:\\\\Program Files (x86)\\\\IVI Foundation\\\\VISA\\\\WinNT\\\\ktvisa', 'C:\\\\Program Files (x86)\\\\IVI Foundation\\\\VISA\\\\WinNT\\\\Bin\\\\', 'C:\\\\Program Files\\\\IVI Foundation\\\\VISA\\\\Win64\\\\Bin\\\\', 'C:\\\\Program Files (x86)\\\\IVI Foundation\\\\VISA\\\\winnt\\\\agvisa', 'C:\\\\Program Files\\\\Git\\\\cmd', 'C:\\\\Strawberry\\\\c\\\\bin', 'C:\\\\Strawberry\\\\perl\\\\site\\\\bin', 'C:\\\\Strawberry\\\\perl\\\\bin', 'C:\\\\Program Files\\\\TortoiseSVN\\\\bin', 'C:\\\\Program Files\\\\gnuplot\\\\bin', 'C:\\\\Program Files\\\\dotnet\\\\', 'C:\\\\Program Files (x86)\\\\IVI Foundation\\\\VISA\\\\WinNT\\\\Bin', 'C:\\\\Program Files (x86)\\\\IVI Foundation\\\\IVI\\\\Bin\\\\', 'C:\\\\Program Files\\\\IVI Foundation\\\\IVI\\\\Bin\\\\', 'C:\\\\Program Files\\\\Wolfram Research\\\\WolframScript\\\\', 'C:\\\\Users\\\\Demag\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps', 'C:\\\\Program Files\\\\AlazarTech\\\\utilities\\\\Firmware Updater 3.4.0\\\\bin', 'C:\\\\Program Files\\\\JetBrains\\\\PyCharm Community Edition 2023.1.2\\\\bin', '', 'C:\\\\Users\\\\Demag\\\\AppData\\\\Local\\\\GitHubDesktop\\\\bin', 'C:\\\\Users\\\\Demag\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\bin']\n"
+      ]
+     }
+    ],
+    "source": [
+-    "dc.idn()"
++    "import os\n",
++    "\n",
++    "# Print the PATH environment variable\n",
++    "print(os.environ['PATH'].split(\";\"))\n"
+    ]
+   },
+   {
+    "cell_type": "code",
+    "execution_count": null,
+-   "id": "54774e7f",
++   "id": "1bfd6455",
+    "metadata": {},
+    "outputs": [],
+    "source": []
+Index: NANOdrivers/nanodrivers/visa_drivers/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"Python driver for: AnaPico\"\"\"\r\n\r\nfrom .visa_dev import *\r\nfrom .anapico import *\r\nfrom .vna import *\r\nfrom .locking import *\r\nfrom .global_settings import *\r\nfrom .AWG import *\r\nfrom .signal_analyser import *
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/__init__.py b/NANOdrivers/nanodrivers/visa_drivers/__init__.py
+--- a/NANOdrivers/nanodrivers/visa_drivers/__init__.py	(revision ac675ff847da7d5adb6fcf9a775606cc9733b9ba)
++++ b/NANOdrivers/nanodrivers/visa_drivers/__init__.py	(date 1736944151158)
+@@ -3,7 +3,9 @@
+ from .visa_dev import *
+ from .anapico import *
+ from .vna import *
+-from .locking import *
++from .lockin import *
+ from .global_settings import *
+ from .AWG import *
+-from .signal_analyser import *
+\ No newline at end of file
++from .signal_analyser import *
++from .dc import *
++from .SIM928_voltage_source import *
+Index: NANOdrivers/nanodrivers/visa_drivers/lockin.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/lockin.py b/NANOdrivers/nanodrivers/visa_drivers/lockin.py
+new file mode 100644
+--- /dev/null	(date 1727181302120)
++++ b/NANOdrivers/nanodrivers/visa_drivers/lockin.py	(date 1727181302120)
+@@ -0,0 +1,107 @@
++import numpy as np
++from numpy import *
++import os
++from ctypes import *
++
++import nanodrivers.visa_drivers.visa_dev as v
++import nanodrivers.visa_drivers.global_settings as gs
++
++global_loking_address = gs.loking_address
++class LOCKIN(v.BaseVisa):
++    """Class for Stanford_Research_Systems, SR844, Lock-In Amplifier
++
++    Args:
++        device_num:
++            GPIB num (float) or full device address (string)
++
++    """
++
++    def __int__(self, device_num=global_loking_address):
++        super().__int__(device_num)
++
++
++    def clear(self):
++        return self.write('*CLS')
++
++
++    def get_sensitivity(self):
++        return self.query_float('SENS ?')
++
++    def set_sensitivity(self, s):
++        """ Function to set sensitivity of Loking input
++
++        Args:
++            s: sensitivity, needs to be selected from table
++                0: 100 nVrms / -127 dBm
++                1: 300 nVrms / -117 dBm
++                2: 1 μVrms / -107 dBm
++                3: 3 μVrms / -97 dBm
++                4: 10 μVrms / -87 dBm
++                5: 30 μVrms / -77 dBm
++                6: 100 μVrms / -67 dBm
++                7: 300 μVrms / -57 dBm
++                8: 1 mVrms / -47 dBm
++                9: 3 mVrms / -37 dBm
++                10: 10 mVrms / -27 dBm
++                11: 30 mVrms / -17 dBm
++                12: 100 mVrms / -7 dBm
++                13: 300 mVrms / +3 dBm
++                14: 1 Vrms / +13 dBm
++
++        Returns: info line about current sensitivity
++
++        """
++        sensitivity_options = [
++            '0: 100 nVrms / -127 dBm',
++            '1: 300 nVrms / -117 dBm',
++            '2: 1 μVrms / -107 dBm',
++            '3: 3 μVrms / -97 dBm',
++            '4: 10 μVrms / -87 dBm',
++            '5: 30 μVrms / -77 dBm',
++            '6: 100 μVrms / -67 dBm',
++            '7: 300 μVrms / -57 dBm',
++            '8: 1 mVrms / -47 dBm',
++            '9: 3 mVrms / -37 dBm',
++            '10: 10 mVrms / -27 dBm',
++            '11: 30 mVrms / -17 dBm',
++            '12: 100 mVrms / -7 dBm',
++            '13: 300 mVrms / +3 dBm',
++            '14: 1 Vrms / +13 dBm']
++        self.query_float('SENS {}'.format(str(s)))
++        return sensitivity_options[s]
++
++    def set_auto_sens(self):
++        '''
++
++        Returns: Not really reliable. Sets too sensitive rate. Not recommended to use
++
++        '''
++        return self.write('AGAN')
++
++    def get_phase(self):
++        return self.query_float('PHAS ?')
++
++    def get_ref_impedance(self):
++        imp = self.query_int('REFZ ?')
++        if imp == 0: return '50 Ohm'
++        if imp == 1: return '1 MOhm '
++
++    def get_input_impedance(self):
++        imp = self.query_int('INPZ ?')
++        if imp == 0: return '50 Ohm'
++        if imp == 1: return '1 MOhm '
++
++    def get_time_const(self):
++        tconst = self.query_int('OFLT ?')
++        if tconst == 0: return '100 mus'
++        if tconst == 17: return '30 ks'
++        else: return tconst
++
++    def get_X_data(self):
++        return self.query_float('OUTP?1')
++
++    def get_Y_data(self):
++        return self.query_float('OUTP?2')
++
++    def set_phase(self, pha):
++        return self.write('PHAS {}'.format(pha))
+\ No newline at end of file
+Index: NANOdrivers/nanodrivers/visa_drivers/SIM928_voltage_source.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NANOdrivers/nanodrivers/visa_drivers/SIM928_voltage_source.py b/NANOdrivers/nanodrivers/visa_drivers/SIM928_voltage_source.py
+new file mode 100644
+--- /dev/null	(date 1736944151132)
++++ b/NANOdrivers/nanodrivers/visa_drivers/SIM928_voltage_source.py	(date 1736944151132)
+@@ -0,0 +1,114 @@
++from numpy import *
++import numpy as np
++import nanodrivers.visa_drivers.visa_dev as v
++import nanodrivers.visa_drivers.global_settings as gs
++import pyvisa
++import time
++
++global_sim_address = gs.SIM_address
++
++def get_class_attributes(print_it=False):
++    """
++    Function returns all class attributes
++
++    Returns: list of all variables globally defined within class
++
++    """
++    list_of_att = dict()
++    for attribute in ANAPICO.__dict__.keys():
++        if attribute[:2] != '__':
++            value = getattr(ANAPICO, attribute)
++            if not callable(value):
++                list_of_att[attribute] = value
++                if print_it:
++                    print(attribute, '=', value)
++
++    return list_of_att
++
++
++class SIM(v.BaseVisa):
++    """
++    A driver for Stanford Research Systems SIM 928 DC source modules installed
++    in a SIM900 mainframe.
++
++    Args:
++        name (str): An identifier for this instrument, particularly for
++            attaching it to a ``Station``.
++        address (str): The visa resource name to use to connect.
++        slot_names (Dict[int]): An dictionary that optionally maps slot numbers
++            to user-defined module names. Default ``{}``.
++        timeout (int, float): Seconds to allow for responses. Default ``5``.
++        metadata (Optional[Dict]): Additional static metadata to add to this
++            instrument's JSON snapshot.
++
++     Args:
++         device_num:
++             GPIB num (float) or full device address (string)
++
++     """
++    def __init__(self, device_num=global_sim_address, slot_names=[0]):
++        super().__init__(device_num, slot_names)  # initialise device with the init of parent class VisaDevice
++        self.write(r':SYST:COMM:LAN:RTMO {}'.format(str(1)))  # reconnect timeout in seconds
++
++        if slot_names is None:
++            self.slot_names = {}
++        else:
++            self.slot_names = slot_names
++        self.module_nr = {}
++        for i in self.slot_names:
++            if self.slot_names[i] in self.module_nr:
++                raise ValueError('Duplicate names in slot_names')
++            self.module_nr[self.slot_names[i]] = i
++
++        self.write('*DCL')  # device clear
++        self.write('FLSH')  # flush port buffers
++        self.write('SRST')  # SIM reset (causes 100 ms delay)
++        time.sleep(0.5)
++
++        self.modules = self.find_modules()
++        for i in self.modules:
++            self.write_module(i, 'TERM LF')
++            module_name = self.slot_names.get(i, i)
++            self.add_parameter('IDN_{}'.format(module_name),
++                               label="IDN of module {}".format(module_name),
++                               get_cmd=partial(self.get_module_idn, i))
++            self.add_parameter('volt_{}'.format(module_name), unit='V',
++                               label="Output voltage of module "
++                                     "{}".format(module_name),
++                               vals=vals.Numbers(-20, 20),
++                               get_cmd=partial(self.get_voltage, i),
++                               set_cmd=partial(self._set_voltage, i))
++            self.add_parameter('volt_{}_step'.format(module_name), unit='V',
++                               label="Step size when changing the voltage "
++                                     "smoothly on module "
++                                     "{}".format(module_name),
++                               get_cmd=None, set_cmd=None,
++                               vals=vals.Numbers(0, 20), initial_value=0.005)
++        self.add_parameter('smooth_timestep', unit='s',
++                           label="Delay between sending the write commands"
++                                 "when changing the voltage smoothly",
++                           get_cmd=None, set_cmd=None,
++                           vals=vals.Numbers(0, 1), initial_value=0.05)
++
++    def dump(self, print_it=False):
++        """
++        Function returns all pre-defined class attributes
++        (all variables used in the code with the latest value read)
++
++        Returns: list of all variables defined in class __init__
++
++        """
++        for i in [1, 2, 3, 4]:
++            self.get_status(i)
++            self.get_freq(i)
++            self.get_power(i)
++
++        list_of_att = dict()
++        for attribute, value in self.__dict__.items():
++            list_of_att[attribute] = value
++            if print_it:
++                print(attribute, '=', value)
++            if type(value) == pyvisa.resources.tcpip.TCPIPInstrument:
++                list_of_att[attribute] = str(value)
++        return list_of_att
++

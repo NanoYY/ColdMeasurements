@@ -11,7 +11,7 @@
         anapico_address = 'TCPIP0::169.254.5.91::18::SOCKET'"
 """
 
-anapico_address = 'TCPIP0::169.254.5.91::inst0::INSTR'
+anapico_address = 'TCPIP0::169.254.12.34::inst0::INSTR'
 
 # vna_address = 'GPIB0::20::INSTR'
 vna_address = 'TCPIP0::169.254.36.111::hislip0::INSTR'
@@ -27,3 +27,4 @@ awg_address = 'GPIB0::13::INSTR'
 
 sa_address = 'GPIB0::18::INSTR'
 
+SIM_address = 'GPIB0::11::INSTR'
